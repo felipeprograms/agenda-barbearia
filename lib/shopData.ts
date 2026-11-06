@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "./supabaseAdmin";
+import { isShopOpen } from "./shopStatus";
 
 export type PublicService = { id: string; name: string; price_cents: number; duration_min: number };
 export type PublicBarber = {
@@ -44,11 +45,11 @@ export async function loadPublicShop(shopSlug: string, barberSlug?: string): Pro
 
   const { data: shop } = await admin
     .from("shops")
-    .select("id,name,tagline,about,address,phone,instagram,hours_text,policies_text,cover_url,logo_url,gallery")
+    .select("id,name,status,paid_until,tagline,about,address,phone,instagram,hours_text,policies_text,cover_url,logo_url,gallery")
     .eq("slug", shopSlug)
     .eq("active", true)
     .maybeSingle();
-  if (!shop) return null;
+  if (!shop || !isShopOpen(shop.status, shop.paid_until)) return null;
 
   let query = admin
     .from("barbers")

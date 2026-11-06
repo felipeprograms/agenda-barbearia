@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: "Agendamento online",
+  title: { default: `${BRAND} | Agenda online para barbearias`, template: `%s | ${BRAND}` },
   description: "Agende seu horário na barbearia e garanta a vaga com Pix ou cartão.",
 };
 

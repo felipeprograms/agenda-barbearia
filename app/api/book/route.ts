@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { barberShopIsOpen } from "@/lib/shopGuard";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getAvailableSlots } from "@/lib/availability";
 import { createCardCheckout, createPixPayment } from "@/lib/mercadopago";
@@ -51,6 +52,7 @@ export async function POST(req: Request) {
     .maybeSingle();
   if (!barber) return fail(404, "Barbeiro não encontrado.");
   if (!barber.mp_connected) return fail(409, "Este barbeiro ainda não ativou o pagamento online.");
+  if (!(await barberShopIsOpen(admin, barberId))) return fail(409, "Esta barbearia não está recebendo agendamentos no momento.");
 
   const { data: service } = await admin
     .from("services")

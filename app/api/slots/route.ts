@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { barberShopIsOpen } from "@/lib/shopGuard";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getAvailableSlots } from "@/lib/availability";
 
@@ -19,6 +20,7 @@ export async function GET(req: Request) {
 
   try {
     const admin = supabaseAdmin();
+    if (!(await barberShopIsOpen(admin, barberId))) return NextResponse.json({ slots: [] });
     const { data: service } = await admin
       .from("services")
       .select("duration_min")

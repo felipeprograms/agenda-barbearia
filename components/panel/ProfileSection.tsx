@@ -19,6 +19,7 @@ function cleanInstagram(v: string): string {
 /** Área do dono: textos e fotos que aparecem na página pública da barbearia. */
 export default function ProfileSection({ shop, onChange }: { shop: Shop; onChange: () => void }) {
   const [f, setF] = useState({
+    name: shop.name,
     tagline: shop.tagline ?? "",
     about: shop.about ?? "",
     address: shop.address ?? "",
@@ -35,6 +36,10 @@ export default function ProfileSection({ shop, onChange }: { shop: Shop; onChang
     e.preventDefault();
     setMsg(null);
 
+    const shopName = f.name.trim();
+    if (shopName.length < 2 || shopName.length > 80) {
+      return setMsg({ ok: false, text: "O nome da barbearia deve ter de 2 a 80 letras." });
+    }
     const phone = f.phone.replace(/\D/g, "");
     if (phone && (phone.length < 10 || phone.length > 13)) {
       return setMsg({ ok: false, text: "Informe o WhatsApp com DDD, por exemplo 71 99999-9999." });
@@ -48,6 +53,7 @@ export default function ProfileSection({ shop, onChange }: { shop: Shop; onChang
     const { error } = await supabaseBrowser()
       .from("shops")
       .update({
+        name: shopName,
         tagline: f.tagline.trim() || null,
         about: f.about.trim() || null,
         address: f.address.trim() || null,
@@ -231,6 +237,17 @@ export default function ProfileSection({ shop, onChange }: { shop: Shop; onChang
       </div>
 
       <form className="stack" onSubmit={save}>
+        <div>
+          <label htmlFor="p-name">Nome da barbearia</label>
+          <input
+            id="p-name"
+            required
+            minLength={2}
+            maxLength={80}
+            value={f.name}
+            onChange={(e) => setF({ ...f, name: e.target.value })}
+          />
+        </div>
         <div>
           <label htmlFor="p-tagline">Frase de apresentação</label>
           <input

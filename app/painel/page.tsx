@@ -10,6 +10,8 @@ import ShopSection from "@/components/panel/ShopSection";
 import ProfileSection from "@/components/panel/ProfileSection";
 import BarberSection from "@/components/panel/BarberSection";
 import BarberForm from "@/components/panel/BarberForm";
+import BrandBar from "@/components/BrandBar";
+import StatusBanner from "@/components/panel/StatusBanner";
 
 export default function PainelPage() {
   // undefined = ainda verificando o login; null = deslogado
@@ -33,7 +35,7 @@ export default function PainelPage() {
     const [shopRes, barberRes] = await Promise.all([
       db
         .from("shops")
-        .select("id,slug,name,tagline,about,address,phone,instagram,hours_text,policies_text,cover_url,logo_url,gallery")
+        .select("id,slug,name,status,paid_until,tagline,about,address,phone,instagram,hours_text,policies_text,cover_url,logo_url,gallery")
         .eq("owner_user_id", uid)
         .maybeSingle(),
       db.from("barbers").select("*").eq("user_id", uid).maybeSingle(),
@@ -42,7 +44,7 @@ export default function PainelPage() {
     const b = (barberRes.data as Barber | null) ?? null;
     setBarber(b);
     if (b) {
-      const { data } = await db.from("shops").select("id,slug,name").eq("id", b.shop_id).maybeSingle();
+      const { data } = await db.from("shops").select("id,slug,name,status,paid_until").eq("id", b.shop_id).maybeSingle();
       setBarberShop((data as ShopBasic | null) ?? null);
     } else {
       setBarberShop(null);
@@ -55,11 +57,12 @@ export default function PainelPage() {
     else setLoaded(false);
   }, [session, reload]);
 
-  if (session === undefined) return <div className="container"><p className="muted">Carregando…</p></div>;
-  if (session === null) return <div className="container"><AuthForm /></div>;
+  if (session === undefined) return <div className="container"><BrandBar /><p className="muted">Carregando…</p></div>;
+  if (session === null) return <div className="container"><BrandBar /><AuthForm /></div>;
 
   return (
     <div className="container stack">
+      <BrandBar />
       <div className="row between">
         <span className="muted">{session.user.email}</span>
         <button className="btn btn-small" onClick={() => supabaseBrowser().auth.signOut()}>
@@ -70,6 +73,12 @@ export default function PainelPage() {
       {!loaded && <p className="muted">Carregando…</p>}
 
       {loaded && !ownedShop && !barber && <Onboarding session={session} onDone={reload} />}
+
+      {loaded && ownedShop && <StatusBanner status={ownedShop.status} paidUntil={ownedShop.paid_until} />}
+
+      {loaded && !ownedShop && barberShop && (
+        <StatusBanner status={barberShop.status} paidUntil={barberShop.paid_until} />
+      )}
 
       {loaded && ownedShop && <ShopSection shop={ownedShop} />}
 

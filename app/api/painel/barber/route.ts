@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { userFromRequest } from "@/lib/authServer";
+import { isShopOpen } from "@/lib/shopStatus";
 
 export const dynamic = "force-dynamic";
 
@@ -53,9 +54,21 @@ export async function POST(req: Request) {
     if (!invite) return fail(400, "Código de convite inválido ou já utilizado.");
     shopId = invite.shop_id;
     invitedByCode = true;
+    const { data: invShop } = await admin.from("shops").select("status,paid_until").eq("id", shopId).maybeSingle();
+    if (!invShop || !isShopOpen(invShop.status, invShop.paid_until)) {
+      await admin.from("invites").update({ used_by: null }).eq("code", code);
+      return fail(403, "Esta barbearia ainda não foi liberada ou está com a mensalidade vencida. Fale com o dono.");
+    }
   } else {
-    const { data: shop } = await admin.from("shops").select("id").eq("owner_user_id", user.id).maybeSingle();
+    const { data: shop } = await admin
+      .from("shops")
+      .select("id,status,paid_until")
+      .eq("owner_user_id", user.id)
+      .maybeSingle();
     if (!shop) return fail(400, "Informe o código de convite da barbearia.");
+    if (!isShopOpen(shop.status, shop.paid_until)) {
+      return fail(403, "Sua barbearia ainda não foi liberada. Assim que o administrador liberar, você poderá criar seu cadastro de barbeiro.");
+    }
     shopId = shop.id;
   }
 

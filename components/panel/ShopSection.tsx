@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
 import { copyText, type ShopBasic } from "@/lib/panelUtils";
+import { isShopOpen } from "@/lib/shopStatus";
 
 type Invite = { code: string; used_by: string | null };
 type Member = { id: string; name: string; slug: string; active: boolean; mp_connected: boolean };
@@ -16,6 +17,7 @@ export default function ShopSection({ shop }: { shop: ShopBasic }) {
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const shopLink = `${origin}/${shop.slug}`;
+  const open = isShopOpen(shop.status, shop.paid_until);
 
   const load = useCallback(async () => {
     const db = supabaseBrowser();
@@ -91,11 +93,16 @@ export default function ShopSection({ shop }: { shop: ShopBasic }) {
 
       <div>
         <h3>Convidar barbeiro</h3>
+        {!open && (
+          <p className="muted">
+            Os convites ficam disponíveis quando a barbearia estiver liberada e com a mensalidade em dia.
+          </p>
+        )}
         <p className="muted">
           Gere um código e envie ao barbeiro. Ele cria a própria conta em /painel, escolhe “Tenho um convite” e conecta o
           próprio Mercado Pago, assim o Pix cai direto na conta dele. Cada código vale para uma pessoa.
         </p>
-        <button className="btn btn-primary" onClick={createInvite}>
+        <button className="btn btn-primary" onClick={createInvite} disabled={!open}>
           Gerar convite
         </button>
         {error && <p className="error">{error}</p>}

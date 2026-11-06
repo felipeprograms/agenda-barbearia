@@ -399,7 +399,7 @@ html { scroll-behavior: smooth; }
 }
 
 /* Capa */
-.hero-full { position: relative; display: flex; align-items: center; justify-content: center; text-align: center; min-height: 560px; padding: 72px 20px; background: var(--grafite); overflow: hidden; }
+.hero-full { position: relative; display: flex; align-items: center; justify-content: center; text-align: center; min-height: 560px; padding: 72px 20px; background: var(--grafite) url("/hero-home.svg") center / cover no-repeat; overflow: hidden; }
 .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center; filter: grayscale(1) contrast(1.05); }
 .hero-full::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(11,11,11,0.55), rgba(11,11,11,0.8)); }
 .hero-content { position: relative; z-index: 1; max-width: 620px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
@@ -483,3 +483,40 @@ html { scroll-behavior: smooth; }
 .master-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .master-initials { font-family: var(--display); font-size: 2.2rem; color: var(--ouro); }
 .master-name { font-weight: 700; }
+
+/* Administração e avisos de situação da barbearia */
+.admin-title { font-size: clamp(1.6rem, 6vw, 2.2rem); }
+.admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+.admin-stats div { border: 1px solid var(--rule); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; background: var(--grafite); }
+.admin-stats strong { font-family: var(--display); font-size: 1.8rem; color: var(--ouro-2); line-height: 1.1; }
+.admin-stats span { color: var(--text-muted); font-size: 0.85rem; }
+.admin-shop h3 { font-family: var(--display); font-weight: 400; font-size: 1.2rem; }
+.admin-days { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 0.9rem; }
+.admin-days input { width: 72px; min-height: 36px; padding: 4px 8px; }
+.admin-note { flex: 1; min-width: 200px; }
+.notice { border-color: var(--ouro); background: rgba(240, 180, 41, 0.08); }
+.notice h3 { color: var(--ouro-2); }
+
+/* ============================================================
+   Página inicial do sistema e barra com o nome do sistema
+   ============================================================ */
+.brandbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 0 6px; }
+.brand { font-family: var(--display); font-size: 1.35rem; color: var(--ouro-2); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; }
+.brand svg { width: 22px; height: 22px; color: var(--ouro); }
+.home-hero { background: #0b0b0b; }
+.home-hero .hero-full { min-height: 640px; background-color: transparent; background-image: linear-gradient(rgba(11,11,11,0.45), rgba(11,11,11,0.7)), url("/hero.jpg"), url("/hero-home.svg"); }
+.home-hero .nav { position: absolute; left: 0; right: 0; top: 0; background: transparent; border: 0; backdrop-filter: none; }
+.home-title { font-size: clamp(2.2rem, 7.5vw, 4rem); color: var(--creme); line-height: 1.05; max-width: 16ch; }
+.home-brand { font-family: var(--display); color: var(--ouro-2); font-size: 1.1rem; letter-spacing: 0.02em; display: flex; align-items: center; gap: 12px; }
+.home-brand svg { width: 22px; height: 22px; color: var(--ouro); }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; counter-reset: passo; }
+.steps li { border: 1.5px solid var(--ouro); border-radius: 6px; padding: 24px 18px; text-align: center; counter-increment: passo; }
+.steps li::before { content: counter(passo); display: grid; place-items: center; width: 40px; height: 40px; margin: 0 auto 10px; border-radius: 50%; background: var(--ouro); color: #151515; font-family: var(--display); font-size: 1.2rem; }
+.steps h3 { font-family: var(--display); font-weight: 400; font-size: 1.2rem; margin-bottom: 6px; }
+.steps p { margin: 0; color: #d8d3c8; }
+.features { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+.features li { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; }
+.features .ring { width: 72px; height: 72px; box-shadow: none; }
+.features .ring svg { width: 30px; height: 30px; }
+.features h3 { font-family: var(--display); font-weight: 400; font-size: 1.15rem; margin: 4px 0 0; }
+.features p { margin: 0; color: #d8d3c8; max-width: 32ch; }

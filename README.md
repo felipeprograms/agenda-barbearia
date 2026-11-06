@@ -97,3 +97,30 @@ As fontes vêm do Google Fonts, então precisam de internet para carregar.
 - Aviso por WhatsApp (a API oficial é paga por mensagem; o Telegram resolve de graça por enquanto).
 - Cobrança da mensalidade das barbearias (hoje você cobra por fora, por Pix ou boleto).
 - Bloquear folgas e feriados específicos (hoje só existe o horário semanal fixo).
+
+## Painel do administrador (liberar barbearias e cobrar mensalidade)
+
+Novas barbearias nascem **aguardando liberação**: a página pública fica fora do ar e o dono não consegue gerar convites até você liberar. Quem libera é o administrador, em `/admin`.
+
+1. No Supabase (SQL Editor), rode `supabase/migracao-admin.sql` (depois do schema e da vitrine). As barbearias que já existiam continuam no ar.
+2. Torne a sua conta administradora, rodando no SQL Editor (troque pelo seu e-mail de login):
+   ```sql
+   insert into platform_admins (user_id)
+   select id from auth.users where email = 'SEU-EMAIL@exemplo.com'
+   on conflict do nothing;
+   ```
+3. Entre em `/admin` com essa conta. Para cada barbearia você pode **liberar por N dias**, **renovar +N dias**, **suspender/reativar**, ver barbeiros prontos para receber e agendamentos pagos nos últimos 30 dias, e guardar uma anotação.
+4. Mensalidade: você cobra por fora (Pix, por exemplo) e, ao receber, clica em **Renovar +30 dias**. Quando o vencimento passa, a página sai do ar e o dono vê o aviso no painel. "Sem vencimento" serve para contas de teste ou parceiros.
+5. Opcional: `NEXT_PUBLIC_SUPPORT_WHATSAPP` (só números, com 55 e DDD) cria o botão "Falar com o suporte" nos avisos.
+
+O dono da barbearia não consegue mexer em situação, vencimento nem endereço (slug): isso é bloqueado no banco, não só na tela.
+
+## Nome do sistema e imagens de fundo
+
+- O nome do sistema (página inicial, painel, administração e aba do navegador) vem de `lib/brand.ts`. O padrão é "Maniaco". Para trocar sem mexer no código, crie `NEXT_PUBLIC_APP_NAME` na Vercel e faça Redeploy.
+- O nome de cada barbearia é editado no painel, em **Página da barbearia → Nome da barbearia**.
+- Imagens de fundo: o projeto já traz um desenho próprio (poste, tesoura, pente e navalha em `public/hero-home.svg`). Para usar fotos suas:
+  - `public/hero.jpg`: foto do topo da página inicial do sistema (aparece escurecida por cima do desenho).
+  - `public/fundo.jpg`: fundo de todas as páginas (painel, administração e agendamento).
+  - Use fotos suas ou gratuitas e liberadas (Unsplash, Pexels), horizontais, com 1600 px de largura e menos de 400 KB.
+  - A capa de cada barbearia continua sendo enviada pelo dono, no painel. Sem capa, a página da barbearia usa o desenho padrão.
