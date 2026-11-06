@@ -75,6 +75,13 @@ export default function AdminPage() {
     setBusyId(shopId);
     setError("");
     const { status, json } = await call("POST", { shopId, action, ...extra });
+    if (status === 409 && json.futureBookings) {
+      setBusyId("");
+      if (window.confirm(`${json.error}\n\nOs clientes que já pagaram perderiam o horário. Excluir mesmo assim?`)) {
+        return act(shopId, action, { ...extra, force: true });
+      }
+      return;
+    }
     setBusyId("");
     if (status !== 200) return setError(json.error ?? "Não foi possível salvar.");
     await load();
@@ -155,6 +162,9 @@ function ShopCard({
 }) {
   const [note, setNote] = useState(s.admin_note ?? "");
   const [days, setDays] = useState("30");
+  const [deleting, setDeleting] = useState(false);
+  const [typed, setTyped] = useState("");
+  const [withAccounts, setWithAccounts] = useState(false);
   const created = formatDateBR(s.created_at.slice(0, 10));
 
   return (
@@ -233,6 +243,48 @@ function ShopCard({
           Salvar anotação
         </button>
       </div>
+
+      {!deleting ? (
+        <div>
+          <button className="btn btn-small btn-danger" onClick={() => setDeleting(true)}>
+            Excluir barbearia
+          </button>
+        </div>
+      ) : (
+        <div className="danger-box stack">
+          <p style={{ margin: 0 }}>
+            <strong>Isso apaga para sempre</strong> a barbearia, os barbeiros, serviços, horários, agendamentos e fotos.
+            Se ela só parou de pagar, prefira <strong>Suspender</strong>.
+          </p>
+          <label htmlFor={`del-${s.id}`}>
+            Para confirmar, digite o endereço: <code>{s.slug}</code>
+          </label>
+          <input id={`del-${s.id}`} value={typed} onChange={(e) => setTyped(e.target.value)} autoComplete="off" />
+          <label className="check">
+            <input type="checkbox" checked={withAccounts} onChange={(e) => setWithAccounts(e.target.checked)} />
+            Apagar também os logins do dono e dos barbeiros (contas de administrador nunca são apagadas)
+          </label>
+          <div className="row">
+            <button
+              className="btn btn-small btn-danger"
+              disabled={busy || typed.trim().toLowerCase() !== s.slug}
+              onClick={() => act(s.id, "delete", { confirm: typed, deleteAccounts: withAccounts })}
+            >
+              Excluir definitivamente
+            </button>
+            <button
+              className="btn btn-small"
+              onClick={() => {
+                setDeleting(false);
+                setTyped("");
+                setWithAccounts(false);
+              }}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

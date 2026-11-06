@@ -520,3 +520,10 @@ html { scroll-behavior: smooth; }
 .features .ring svg { width: 30px; height: 30px; }
 .features h3 { font-family: var(--display); font-weight: 400; font-size: 1.15rem; margin: 4px 0 0; }
 .features p { margin: 0; color: #d8d3c8; max-width: 32ch; }
+
+.btn-danger { color: var(--danger); border-color: var(--danger); }
+.btn-danger:hover:not(:disabled) { background: rgba(255, 143, 133, 0.12); }
+.danger-box { border: 1.5px solid var(--danger); border-radius: 10px; padding: 14px; background: rgba(255, 143, 133, 0.06); }
+.danger-box code { color: var(--ouro-2); }
+.check { display: flex; gap: 8px; align-items: flex-start; font-weight: 400; color: var(--text-muted); font-size: 0.92rem; }
+.check input { margin-top: 3px; flex: none; }

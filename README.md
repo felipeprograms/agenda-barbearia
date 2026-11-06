@@ -117,7 +117,7 @@ O dono da barbearia não consegue mexer em situação, vencimento nem endereço 
 
 ## Nome do sistema e imagens de fundo
 
-- O nome do sistema (página inicial, painel, administração e aba do navegador) vem de `lib/brand.ts`. O padrão é "Maniaco". Para trocar sem mexer no código, crie `NEXT_PUBLIC_APP_NAME` na Vercel e faça Redeploy.
+- O nome do sistema (página inicial, painel, administração e aba do navegador) vem de `lib/brand.ts`. O padrão é "Agenda Barbearia". Para trocar sem mexer no código, crie `NEXT_PUBLIC_APP_NAME` na Vercel e faça Redeploy.
 - O nome de cada barbearia é editado no painel, em **Página da barbearia → Nome da barbearia**.
 - Imagens de fundo: o projeto já traz um desenho próprio (poste, tesoura, pente e navalha em `public/hero-home.svg`). Para usar fotos suas:
   - `public/hero.jpg`: foto do topo da página inicial do sistema (aparece escurecida por cima do desenho).

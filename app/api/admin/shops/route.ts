@@ -77,6 +77,9 @@ export async function GET(req: Request) {
  *  suspend        tira do ar
  *  reactivate     volta a liberar (não mexe no vencimento)
  *  note           grava uma anotação sua (até 200 letras)
+ *  delete         apaga a barbearia para sempre (exige "confirm" = endereço da barbearia).
+ *                 "deleteAccounts" também apaga os logins do dono e dos barbeiros (nunca os de administradores).
+ *                 Se houver agendamentos pagos futuros, responde 409 até receber "force": true.
  */
 export async function POST(req: Request) {
   if (!(await adminFromRequest(req))) return fail(403, "Sem permissão.");
@@ -92,8 +95,14 @@ export async function POST(req: Request) {
   if (!UUID.test(shopId)) return fail(400, "Barbearia inválida.");
 
   const admin = supabaseAdmin();
-  const { data: shop } = await admin.from("shops").select("id,paid_until").eq("id", shopId).maybeSingle();
+  const { data: shop } = await admin
+    .from("shops")
+    .select("id,slug,owner_user_id,paid_until")
+    .eq("id", shopId)
+    .maybeSingle();
   if (!shop) return fail(404, "Barbearia não encontrada.");
+
+  if (action === "delete") return deleteShop(admin, shop, body);
 
   const today = todayLocal();
   const rawDays = Number(body.days ?? 30);
@@ -140,4 +149,69 @@ export async function POST(req: Request) {
     return fail(500, "Não foi possível salvar.");
   }
   return NextResponse.json({ ok: true });
+}
+
+type ShopRow = { id: string; slug: string; owner_user_id: string; paid_until: string | null };
+
+/** Apaga a barbearia e tudo que pertence a ela. Ordem importa: agendamentos antes dos serviços. */
+async function deleteShop(admin: ReturnType<typeof supabaseAdmin>, shop: ShopRow, body: Record<string, unknown>) {
+  if (String(body.confirm ?? "").trim().toLowerCase() !== shop.slug) {
+    return fail(400, "Para excluir, digite o endereço da barbearia exatamente como aparece.");
+  }
+
+  const { data: team } = await admin.from("barbers").select("id,user_id").eq("shop_id", shop.id);
+  const barberIds = (team ?? []).map((b) => b.id as string);
+  const userIds = [...new Set([shop.owner_user_id, ...(team ?? []).map((b) => b.user_id as string)])];
+
+  if (body.force !== true && barberIds.length > 0) {
+    const { count } = await admin
+      .from("bookings")
+      .select("id", { count: "exact", head: true })
+      .in("barber_id", barberIds)
+      .eq("status", "confirmed")
+      .gt("starts_at", new Date().toISOString());
+    if (count && count > 0) {
+      return NextResponse.json(
+        { error: `Esta barbearia tem ${count} agendamento(s) pago(s) para os próximos dias.`, futureBookings: count },
+        { status: 409 },
+      );
+    }
+  }
+
+  // Fotos enviadas (cada usuário tem uma pasta no armazenamento). Se falhar, não impede a exclusão.
+  for (const uid of userIds) {
+    try {
+      const { data: files } = await admin.storage.from("fotos").list(uid, { limit: 200 });
+      if (files && files.length > 0) await admin.storage.from("fotos").remove(files.map((f) => `${uid}/${f.name}`));
+    } catch (e) {
+      console.error("limpar fotos:", e);
+    }
+  }
+
+  if (barberIds.length > 0) {
+    const { error: bErr } = await admin.from("bookings").delete().in("barber_id", barberIds);
+    if (bErr) {
+      console.error("apagar agendamentos:", bErr);
+      return fail(500, "Não foi possível apagar os agendamentos da barbearia.");
+    }
+  }
+
+  const { error } = await admin.from("shops").delete().eq("id", shop.id);
+  if (error) {
+    console.error("apagar barbearia:", error);
+    return fail(500, "Não foi possível apagar a barbearia.");
+  }
+
+  let accountsDeleted = 0;
+  if (body.deleteAccounts === true) {
+    const { data: admins } = await admin.from("platform_admins").select("user_id");
+    const protectedIds = new Set((admins ?? []).map((a) => a.user_id as string));
+    for (const uid of userIds) {
+      if (protectedIds.has(uid)) continue;
+      const { error: dErr } = await admin.auth.admin.deleteUser(uid);
+      if (dErr) console.error("apagar login:", dErr);
+      else accountsDeleted += 1;
+    }
+  }
+  return NextResponse.json({ ok: true, accountsDeleted });
 }
