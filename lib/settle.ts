@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "./supabaseAdmin";
+import { getBarberAccessToken } from "./mpOAuth";
 import { findApprovedPayment, getPayment } from "./mercadopago";
 import { sendTelegram } from "./telegram";
 import { formatBRL, formatDateTimeBR } from "./time";
@@ -17,22 +18,18 @@ export async function settleBooking(bookingId: string): Promise<string> {
   if (!b) return "not_found";
   if (b.status === "confirmed" || b.status === "cancelled" || b.status === "conflict") return b.status;
 
-  const { data: secret } = await admin
-    .from("barber_secrets")
-    .select("mp_access_token")
-    .eq("barber_id", b.barber_id)
-    .maybeSingle();
-  if (!secret) return b.status;
+  const mpToken = await getBarberAccessToken(admin, b.barber_id);
+  if (!mpToken) return b.status;
 
   let payment: { status: string; externalReference: string | null; amount: number };
   let paymentId: string | null = b.mp_payment_id;
   try {
     if (paymentId) {
       // Pix: já sabemos qual é o pagamento.
-      payment = await getPayment(secret.mp_access_token, paymentId);
+      payment = await getPayment(mpToken, paymentId);
     } else {
       // Cartão: o pagamento só existe depois que o cliente paga; procuramos pelo id do agendamento.
-      const found = await findApprovedPayment(secret.mp_access_token, b.id);
+      const found = await findApprovedPayment(mpToken, b.id);
       if (!found) return b.status;
       payment = found;
       paymentId = found.id;

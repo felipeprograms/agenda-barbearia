@@ -9,7 +9,7 @@ const base = {
   "aria-hidden": true,
 };
 
-export type IconName = "scissors" | "comb" | "clock" | "pin" | "phone" | "check" | "bell" | "link" | "wallet";
+export type IconName = "scissors" | "comb" | "clock" | "pin" | "phone" | "check" | "bell" | "link" | "wallet" | "instagram" | "whatsapp";
 
 export function Icon({ name, className }: { name: IconName; className?: string }) {
   switch (name) {
@@ -68,6 +68,21 @@ export function Icon({ name, className }: { name: IconName; className?: string }
           <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3" />
           <rect x="4" y="8" width="16" height="11" rx="2" />
           <circle cx="16" cy="13.5" r="1.2" />
+        </svg>
+      );
+    case "instagram":
+      return (
+        <svg {...base} className={className}>
+          <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+          <circle cx="12" cy="12" r="4" />
+          <circle cx="17" cy="7" r="0.8" fill="currentColor" />
+        </svg>
+      );
+    case "whatsapp":
+      return (
+        <svg {...base} className={className}>
+          <path d="M4 20l1.2-4A8 8 0 1 1 8.2 19L4 20Z" />
+          <path d="M9.2 8.8c.3 2.5 2.4 4.6 5 5l1.2-1.2-1.8-1-.9.7a3.6 3.6 0 0 1-1.6-1.6l.7-.9-1-1.8-1.6 1.8Z" />
         </svg>
       );
     case "check":

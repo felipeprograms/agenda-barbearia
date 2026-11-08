@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getBarberAccessToken } from "@/lib/mpOAuth";
 import { barberShopIsOpen } from "@/lib/shopGuard";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getAvailableSlots } from "@/lib/availability";
@@ -101,12 +102,8 @@ export async function POST(req: Request) {
     return fail(500, "Não foi possível reservar o horário.");
   }
 
-  const { data: secret } = await admin
-    .from("barber_secrets")
-    .select("mp_access_token")
-    .eq("barber_id", barberId)
-    .maybeSingle();
-  if (!secret) {
+  const mpToken = await getBarberAccessToken(admin, barberId);
+  if (!mpToken) {
     await admin.from("bookings").update({ status: "cancelled" }).eq("id", booking.id);
     return fail(409, "Este barbeiro ainda não ativou o pagamento online.");
   }
@@ -117,7 +114,7 @@ export async function POST(req: Request) {
 
   if (method === "card") {
     try {
-      const checkoutUrl = await createCardCheckout(secret.mp_access_token, {
+      const checkoutUrl = await createCardCheckout(mpToken, {
         bookingId: booking.id,
         amountCents: booking.amount_cents,
         title: `${service.name} com ${barber.name}`,
@@ -137,7 +134,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const pix = await createPixPayment(secret.mp_access_token, {
+    const pix = await createPixPayment(mpToken, {
       bookingId: booking.id,
       amountCents: booking.amount_cents,
       description: `${service.name} com ${barber.name}`,

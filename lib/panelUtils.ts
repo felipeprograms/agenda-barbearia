@@ -51,7 +51,10 @@ export function reaisToCents(v: string): number {
 }
 
 /** Chama uma rota do servidor enviando o login do usuário. */
-export async function postAuthed(path: string, body: unknown): Promise<{ ok: boolean; error?: string }> {
+export async function postAuthed(
+  path: string,
+  body: unknown,
+): Promise<{ ok: boolean; error?: string; data?: Record<string, unknown> }> {
   const { data } = await supabaseBrowser().auth.getSession();
   const token = data.session?.access_token ?? "";
   try {
@@ -61,7 +64,7 @@ export async function postAuthed(path: string, body: unknown): Promise<{ ok: boo
       body: JSON.stringify(body),
     });
     const json = await res.json().catch(() => ({}));
-    return res.ok ? { ok: true } : { ok: false, error: json.error ?? "Erro inesperado." };
+    return res.ok ? { ok: true, data: json } : { ok: false, error: json.error ?? "Erro inesperado." };
   } catch {
     return { ok: false, error: "Sem conexão. Tente novamente." };
   }

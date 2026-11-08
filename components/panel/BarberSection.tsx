@@ -70,6 +70,27 @@ function Integrations({ barber, onChange }: { barber: Barber; onChange: () => vo
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const bot = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME;
 
+  // Mensagem na volta do Mercado Pago (/painel?mp=ok ou ?mp=erro)
+  useEffect(() => {
+    const r = new URLSearchParams(window.location.search).get("mp");
+    if (r === "ok") setMsg({ ok: true, text: "Mercado Pago conectado com sucesso!" });
+    if (r === "erro") setMsg({ ok: false, text: "Não foi possível conectar o Mercado Pago. Tente de novo." });
+    if (r) window.history.replaceState(null, "", window.location.pathname);
+  }, []);
+
+  async function connectOneClick() {
+    setBusy(true);
+    setMsg(null);
+    const result = await postAuthed("/api/painel/mp/connect", {});
+    const url = typeof result.data?.url === "string" ? result.data.url : "";
+    if (result.ok && url) {
+      window.location.href = url;
+      return;
+    }
+    setBusy(false);
+    setMsg({ ok: false, text: result.error ?? "Não foi possível iniciar a conexão." });
+  }
+
   async function saveToken(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -102,26 +123,37 @@ function Integrations({ barber, onChange }: { barber: Barber; onChange: () => vo
           </span>
         </h3>
         <p className="muted">
-          Os Pix dos seus clientes caem direto na sua conta. Cole aqui o Access Token de produção da sua aplicação no
-          Mercado Pago (painel de desenvolvedores, em “Suas integrações”). Ele fica guardado no servidor e não aparece
-          mais na tela.
+          Os pagamentos dos seus clientes (Pix e cartão) caem direto na sua conta do Mercado Pago. Clique no botão, entre
+          com o seu login do Mercado Pago e toque em autorizar. Você volta para cá já conectado.
         </p>
-        <form className="stack" onSubmit={saveToken}>
-          <input
-            type="password"
-            autoComplete="off"
-            placeholder="APP_USR-..."
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            required
-          />
-          <div>
-            <button className="btn btn-primary" disabled={busy} type="submit">
-              {busy ? "Conferindo…" : barber.mp_connected ? "Trocar token" : "Conectar Mercado Pago"}
-            </button>
-          </div>
-          {msg && <p className={msg.ok ? "ok" : "error"}>{msg.text}</p>}
-        </form>
+        <div>
+          <button className="btn btn-primary" disabled={busy} type="button" onClick={connectOneClick}>
+            {busy ? "Abrindo…" : barber.mp_connected ? "Reconectar com Mercado Pago" : "Conectar com Mercado Pago"}
+          </button>
+        </div>
+        {msg && <p className={msg.ok ? "ok" : "error"}>{msg.text}</p>}
+        <details style={{ marginTop: 12 }}>
+          <summary className="muted">Avançado: colar o Access Token manualmente</summary>
+          <form className="stack" onSubmit={saveToken} style={{ marginTop: 10 }}>
+            <p className="muted" style={{ margin: 0 }}>
+              Cole o Access Token de produção da sua aplicação (Mercado Pago Developers, em “Suas integrações”). Ele fica
+              guardado no servidor e não aparece mais na tela.
+            </p>
+            <input
+              type="password"
+              autoComplete="off"
+              placeholder="APP_USR-..."
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              required
+            />
+            <div>
+              <button className="btn btn-small" disabled={busy} type="submit">
+                {busy ? "Conferindo…" : "Salvar token"}
+              </button>
+            </div>
+          </form>
+        </details>
       </div>
 
       <div>

@@ -3,7 +3,8 @@ import { formatPhone, instagramLink, mapsLink, whatsappLink } from "@/lib/links"
 import { MAX_DAYS_AHEAD } from "@/lib/config";
 import { formatBRL, todayLocal } from "@/lib/time";
 import BookingFlow from "@/components/BookingFlow";
-import { Icon, type IconName } from "./Icons";
+import { Icon } from "./Icons";
+import PhotoStack, { type StackItem } from "./PhotoStack";
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -28,8 +29,10 @@ function groupServices(barbers: PublicBarber[]) {
   return [...map.values()];
 }
 
-function serviceIcon(name: string): IconName {
-  return /corte|cabelo|degrad|social|infantil|tesoura/i.test(name) ? "scissors" : "comb";
+function chunk<T>(list: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < list.length; i += size) out.push(list.slice(i, i + size));
+  return out;
 }
 
 /** Página pública completa da barbearia, no formato de site. */
@@ -39,18 +42,31 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
   const policies = (shop.policies_text ?? "").split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 6);
   const hasContact = Boolean(shop.phone || shop.instagram);
   const hasVisit = Boolean(shop.hours_text || shop.address || hasContact);
-  const hasAbout = Boolean(shop.about || shop.gallery.length > 0);
   const minDeposit = hasBarbers ? Math.min(...shop.barbers.map((b) => b.deposit_percent)) : 0;
   const showServices = hasBarbers && services.length > 0;
   const showBarbers = hasBarbers && !focusBarber;
 
-  const tagline =
-    shop.tagline ?? "Escolha o barbeiro, o serviço e o horário. O sinal pelo Pix ou cartão garante a sua vaga.";
+  // As 3 primeiras fotos da galeria vão em "Sobre"; as 3 seguintes em "Serviços".
+  const aboutPhotos: StackItem[] = shop.gallery.slice(0, 3).map((src) => ({ src }));
+  const servicePhotos: StackItem[] = shop.gallery.slice(3, 6).map((src) => ({ src }));
+  const hasAbout = Boolean(shop.about) || aboutPhotos.length > 0;
+
+  const barberStacks = chunk<StackItem>(
+    shop.barbers.map((b) => ({
+      src: b.photo_url,
+      label: b.name,
+      initials: initials(b.name),
+      href: `/${shop.slug}/${b.slug}#agendar`,
+    })),
+    3,
+  );
+
+  const tagline = shop.tagline ?? "Escolha o barbeiro, o serviço e o horário. O sinal pelo Pix ou cartão garante a sua vaga.";
 
   return (
     <>
       {/* Menu */}
-      <nav className="nav" aria-label="Menu principal">
+      <nav className="nav nav-shop" aria-label="Menu principal">
         <div className="wrap nav-in">
           <a className="nav-brand" href="#topo" aria-label={shop.name}>
             {shop.logo_url ? (
@@ -61,98 +77,135 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
             )}
           </a>
           <div className="nav-links">
-            {showServices && <a href="#servicos">Serviços</a>}
-            {showBarbers && <a href="#barbeiros">Barbeiros</a>}
+            <a className="is-active" href="#topo">
+              Início
+            </a>
             {hasAbout && <a href="#sobre">Sobre</a>}
+            {showBarbers && <a href="#barbeiros">Barbeiros</a>}
+            {showServices && <a href="#servicos">Serviços</a>}
             {hasVisit && <a href="#visita">Contato</a>}
           </div>
+          <div className="nav-social">
+            {shop.instagram && (
+              <a href={instagramLink(shop.instagram)} target="_blank" rel="noreferrer" aria-label="Instagram">
+                <Icon name="instagram" />
+              </a>
+            )}
+            {shop.phone && (
+              <a href={whatsappLink(shop.phone)} target="_blank" rel="noreferrer" aria-label="WhatsApp">
+                <Icon name="whatsapp" />
+              </a>
+            )}
+          </div>
           <a className="btn btn-small nav-cta" href="#agendar">
-            Agendar horário
+            Agendar
           </a>
         </div>
       </nav>
 
-      {/* Capa */}
-      <header className="hero-full" id="topo">
+      {/* Tela inicial: "Agende seu horário" */}
+      <header className="hero-agenda" id="topo">
         {shop.cover_url && (
           <div className="hero-bg" style={{ backgroundImage: `url(${JSON.stringify(shop.cover_url)})` }} aria-hidden="true" />
         )}
-        <div className="hero-content">
-          {!shop.logo_url && (
-            <div className="hero-ornament" aria-hidden="true">
-              <span />
+        <div className="hero-agenda-in">
+          {shop.logo_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="agenda-logo" src={shop.logo_url} alt="" />
+          ) : (
+            <div className="agenda-brand">
               <Icon name="scissors" />
-              <span />
+              <span>{shop.name}</span>
             </div>
           )}
-          <h1 className={shop.logo_url ? "sr-only" : "wordmark"}>{shop.name}</h1>
-          {shop.logo_url && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img className="hero-logo" src={shop.logo_url} alt="" />
-          )}
-          <p className="hero-tag">{tagline}</p>
-          <div className="hero-actions">
-            <a className="btn btn-primary" href="#agendar">
-              Agendar horário
-            </a>
-            {showServices && (
-              <a className="btn" href="#servicos">
-                Ver serviços
-              </a>
-            )}
-          </div>
+          <h1 className="agende">
+            <span className="sr-only">{shop.name}: </span>
+            <span className="agende-top">Agende seu</span>
+            <span className="agende-main">Horário</span>
+            <span className="agende-ref" aria-hidden="true">
+              Horário
+            </span>
+          </h1>
+          <p className="agende-tag">{tagline}</p>
+          <a className="btn-marcar" href="#agendar">
+            <Icon name="link" />
+            Marcar horário
+          </a>
         </div>
       </header>
 
-      {/* Serviços */}
-      {showServices && (
-        <section className="section" id="servicos">
-          <div className="wrap">
-            <h2 className="section-title">Serviços</h2>
-            <p className="section-sub">Escolha o que combina com você e reserve o horário em poucos toques.</p>
-            <ul className="svc-grid">
-              {services.map((s) => (
-                <li className="svc" key={s.name}>
-                  <Icon name={serviceIcon(s.name)} className="svc-icon" />
-                  <h3>{s.name}</h3>
-                  <p className="muted">{s.duration} min</p>
-                  <div className="svc-price">
-                    {s.min !== s.max && <small>a partir de</small>}
-                    {formatBRL(s.min)}
-                  </div>
-                </li>
-              ))}
-            </ul>
+      {/* Sobre: texto + fotos sobrepostas */}
+      {hasAbout && (
+        <section className="section sobre" id="sobre">
+          <div className={`wrap duo${aboutPhotos.length > 0 ? "" : " duo-solo"}`}>
+            <div className="duo-text">
+              <div className="ornament" aria-hidden="true">
+                <span />
+                <Icon name="scissors" />
+                <span />
+              </div>
+              <h2 className="section-title">Sobre a barbearia</h2>
+              {shop.about && <p className="about-text pre">{shop.about}</p>}
+              {hasBarbers && (
+                <a className="btn btn-primary" href="#agendar">
+                  Agendar horário
+                </a>
+              )}
+            </div>
+            {aboutPhotos.length > 0 && (
+              <div className="duo-photos">
+                <PhotoStack items={aboutPhotos} />
+              </div>
+            )}
           </div>
         </section>
       )}
 
-      {/* Barbeiros */}
+      {/* Barbeiros: fotos sobrepostas, um grupo de até 3 por composição */}
       {showBarbers && (
         <section className="section alt" id="barbeiros">
           <div className="wrap">
             <h2 className="section-title">Nossos barbeiros</h2>
-            <p className="section-sub">Toque em um barbeiro para agendar direto com ele.</p>
-            <ul className="barber-grid">
-              {shop.barbers.map((b) => (
-                <li key={b.id}>
-                  <a className="barber-card" href={`/${shop.slug}/${b.slug}#agendar`}>
-                    <span className="barber-photo">
-                      {b.photo_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={b.photo_url} alt="" loading="lazy" />
-                      ) : (
-                        <span className="barber-initials" aria-hidden="true">
-                          {initials(b.name)}
-                        </span>
-                      )}
-                    </span>
-                    <span className="barber-name">{b.name}</span>
-                    <span className="btn btn-small">Agendar</span>
-                  </a>
-                </li>
+            <p className="section-sub">Toque na foto de um barbeiro para agendar direto com ele.</p>
+            <div className="stacks">
+              {barberStacks.map((group, i) => (
+                <PhotoStack key={i} items={group} />
               ))}
-            </ul>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Serviços: fotos sobrepostas + lista de preços */}
+      {showServices && (
+        <section className="section sobre" id="servicos">
+          <div className={`wrap duo duo-flip${servicePhotos.length > 0 ? "" : " duo-solo"}`}>
+            {servicePhotos.length > 0 && (
+              <div className="duo-photos">
+                <PhotoStack items={servicePhotos} />
+              </div>
+            )}
+            <div className="duo-text">
+              <h2 className="section-title">Serviços</h2>
+              <ul className="price-list">
+                {services.map((s) => (
+                  <li key={s.name}>
+                    <span className="pl-name">
+                      {s.name}
+                      <small>{s.duration} min</small>
+                    </span>
+                    <span className="pl-dots" aria-hidden="true" />
+                    <span className="pl-price">
+                      {s.min !== s.max && <small>a partir de</small>}
+                      {formatBRL(s.min)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <a className="btn btn-primary" href="#agendar">
+                Agendar horário
+              </a>
+            </div>
           </div>
         </section>
       )}
@@ -198,29 +251,9 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
         </div>
       </section>
 
-      {/* Sobre e galeria */}
-      {hasAbout && (
-        <section className="section alt" id="sobre">
-          <div className="wrap">
-            <h2 className="section-title">Sobre a barbearia</h2>
-            {shop.about && <p className="about-text pre">{shop.about}</p>}
-            {shop.gallery.length > 0 && (
-              <div className="gallery gallery-wide">
-                {shop.gallery.map((url) => (
-                  <a key={url} href={url} target="_blank" rel="noreferrer" aria-label="Abrir foto">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt="" loading="lazy" />
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
       {/* Horário, endereço e contato */}
       {hasVisit && (
-        <section className="section" id="visita">
+        <section className="section alt" id="visita">
           <div className="wrap">
             <h2 className="section-title">Venha nos visitar</h2>
             <div className="visit">
@@ -272,7 +305,7 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
 
       {/* Regras */}
       {policies.length > 0 && (
-        <section className="section alt" id="regras">
+        <section className="section" id="regras">
           <div className="wrap">
             <h2 className="section-title">Regras de agendamento</h2>
             <ul className="policies">

@@ -124,3 +124,26 @@ O dono da barbearia não consegue mexer em situação, vencimento nem endereço 
   - `public/fundo.jpg`: fundo de todas as páginas (painel, administração e agendamento).
   - Use fotos suas ou gratuitas e liberadas (Unsplash, Pexels), horizontais, com 1600 px de largura e menos de 400 KB.
   - A capa de cada barbearia continua sendo enviada pelo dono, no painel. Sem capa, a página da barbearia usa o desenho padrão.
+
+## Botão "Conectar com Mercado Pago" (OAuth)
+
+Com ele o barbeiro não precisa entrar no painel de desenvolvedores: clica, entra com o login dele do Mercado Pago, autoriza e volta conectado. O sistema guarda a autorização só no servidor e renova sozinho quando faltarem menos de 7 dias para vencer (a validade padrão é 180 dias).
+
+Configuração, uma vez só, por você (dono da plataforma):
+
+1. No Supabase (SQL Editor), rode `supabase/migracao-oauth.sql`.
+2. Em Mercado Pago Developers, abra a sua aplicação, vá em **Detalhes da aplicação** e preencha **URLs de redirecionamento** com exatamente `https://SEU-SITE.vercel.app/api/mp/callback` (o mesmo endereço do `APP_URL`, mais `/api/mp/callback`, sem barra no final).
+3. Em **Credenciais de produção**, copie o **Client ID** (também chamado de número da aplicação) e o **Client Secret**.
+4. Na Vercel, crie `MP_CLIENT_ID` e `MP_CLIENT_SECRET` com esses valores e faça Redeploy. O `APP_URL` precisa estar com `https://`.
+5. No painel do barbeiro, o botão **Conectar com Mercado Pago** passa a funcionar. A opção de colar o token continua disponível em "Avançado".
+
+Se as variáveis não estiverem configuradas, o botão avisa e o barbeiro usa a opção de colar o token.
+
+
+## Tela inicial da barbearia ("Agende seu horário")
+
+No painel, em **Perfil da barbearia**, há dois campos:
+- **Logo**: aparece acima da frase "Agende seu horário" (e no menu).
+- **Imagem de fundo da tela inicial**: aparece desfocada e escurecida atrás da frase.
+
+Fotos da galeria (até 6): as 3 primeiras ficam em "Sobre a barbearia" e as 3 seguintes em "Serviços", em composição de fotos sobrepostas. Os barbeiros aparecem em grupos de 3 fotos sobrepostas. A fonte Anton da frase é carregada do Google Fonts (precisa de internet). Não há migração nova no Supabase para esta mudança.

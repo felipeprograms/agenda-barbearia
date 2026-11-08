@@ -5,7 +5,7 @@ import { supabaseBrowser } from "@/lib/supabaseBrowser";
 import { removePhoto, uploadPhoto } from "@/lib/photos";
 import type { Shop } from "@/lib/panelUtils";
 
-const MAX_GALLERY = 8;
+const MAX_GALLERY = 6;
 
 /** "@meu.insta", "instagram.com/meu.insta?x=1" -> "meu.insta" */
 function cleanInstagram(v: string): string {
@@ -170,8 +170,8 @@ export default function ProfileSection({ shop, onChange }: { shop: Shop; onChang
       <div>
         <h3>Logo da barbearia</h3>
         <p className="muted">
-          Aparece no centro da capa e no menu do site. Prefira PNG com fundo transparente e letras claras (o fundo da
-          capa é escuro). Sem logo, o site mostra o nome da barbearia.
+          Aparece em cima da frase “Agende seu horário” e no menu do site. Prefira PNG com fundo transparente e letras
+          claras (o fundo é escuro). Sem logo, o site mostra o nome da barbearia.
         </p>
         {shop.logo_url && (
           <div className="logo-preview">
@@ -193,15 +193,19 @@ export default function ProfileSection({ shop, onChange }: { shop: Shop; onChang
       </div>
 
       <div>
-        <h3>Foto de capa</h3>
-        <p className="muted">Foto horizontal da fachada ou do salão. Aparece no topo da página.</p>
+        <h3>Imagem de fundo da tela inicial</h3>
+        <p className="muted">
+          Fica atrás da frase “Agende seu horário”, com um leve desfoque e escurecida para o texto aparecer bem. Use
+          uma foto da fachada, do salão ou de um corte. Qualquer formato serve; no computador ela aparece mais larga e
+          no celular mais alta.
+        </p>
         {shop.cover_url && (
           // eslint-disable-next-line @next/next/no-img-element
           <img className="thumb-cover" src={shop.cover_url} alt="Capa atual da barbearia" />
         )}
         <div className="row">
           <label className="btn btn-small file-btn">
-            {busy === "cover" ? "Enviando…" : shop.cover_url ? "Trocar capa" : "Enviar capa"}
+            {busy === "cover" ? "Enviando…" : shop.cover_url ? "Trocar imagem de fundo" : "Enviar imagem de fundo"}
             <input type="file" accept="image/*" onChange={onCover} disabled={busy !== ""} hidden />
           </label>
           {shop.cover_url && (
@@ -214,7 +218,10 @@ export default function ProfileSection({ shop, onChange }: { shop: Shop; onChang
 
       <div>
         <h3>Galeria ({shop.gallery.length} de {MAX_GALLERY})</h3>
-        <p className="muted">Cortes, o ambiente, a equipe. Você pode escolher várias fotos de uma vez.</p>
+        <p className="muted">
+          Cortes, barbas, o ambiente. As 3 primeiras fotos aparecem sobrepostas em “Sobre a barbearia” e as 3 seguintes
+          em “Serviços”. Você pode escolher várias de uma vez.
+        </p>
         {shop.gallery.length > 0 && (
           <div className="thumbs">
             {shop.gallery.map((url) => (
