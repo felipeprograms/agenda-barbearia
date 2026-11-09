@@ -37,4 +37,4 @@ export function priceFor(plan: PlanId, method: "pix" | "card"): number {
 }
 
 /** Máximo de parcelas no cartão em cada plano (1 = só à vista). A taxa do parcelamento é descontada de você pelo Mercado Pago. */
-export const MAX_INSTALLMENTS: Record<PlanId, number> = { mensal: 1, anual: 12 };
+export const MAX_INSTALLMENTS: Record<PlanId, number> = { mensal: 1, anual: 6 };
