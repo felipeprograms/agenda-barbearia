@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { LIMITS, rateLimit } from "@/lib/rateLimit";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { sendTelegram } from "@/lib/telegram";
 
@@ -11,6 +12,9 @@ type Update = { message?: { text?: string; chat?: { id?: number } } };
  * em "Iniciar", o Telegram envia "/start <codigo>" para cá e guardamos o chat dele.
  */
 export async function POST(req: Request) {
+  const limited = await rateLimit(req, LIMITS.webhook);
+  if (limited) return limited;
+
   const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
   if (!secret || req.headers.get("x-telegram-bot-api-secret-token") !== secret) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });

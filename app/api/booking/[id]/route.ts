@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { LIMITS, rateLimit } from "@/lib/rateLimit";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { settleBooking } from "@/lib/settle";
 import { formatDateTimeBR } from "@/lib/time";
@@ -14,6 +15,9 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  * pagamento direto no Mercado Pago (funciona mesmo se o webhook atrasar).
  */
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const limited = await rateLimit(_req, LIMITS.bookingStatus);
+  if (limited) return limited;
+
   const { id } = await params;
   if (!UUID.test(id)) return NextResponse.json({ error: "Inválido." }, { status: 400 });
 

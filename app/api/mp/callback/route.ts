@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { LIMITS, rateLimit } from "@/lib/rateLimit";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { APP_URL } from "@/lib/config";
 import { exchangeCode, oauthConfigured, readState, saveOAuthTokens } from "@/lib/mpOAuth";
@@ -22,6 +23,9 @@ async function back(result: "ok" | "erro", barberId?: string | null) {
 
 /** Volta do Mercado Pago depois que o barbeiro autoriza: troca o código pelo token e guarda no servidor. */
 export async function GET(req: Request) {
+  const limited = await rateLimit(req, LIMITS.mpCallback);
+  if (limited) return limited;
+
   const url = new URL(req.url);
   const code = url.searchParams.get("code") ?? "";
   const state = url.searchParams.get("state") ?? "";

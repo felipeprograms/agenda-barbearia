@@ -1,7 +1,9 @@
 node_modules
 .next
-.env.local
+# Segredos: nunca vão para o GitHub (inclui cópias com nome errado, como ".env .local")
 .env
-.env*.local
+.env.*
+.env *
+!.env.example
 next-env.d.ts
 *.tsbuildinfo

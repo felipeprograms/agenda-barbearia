@@ -64,7 +64,7 @@ export default function BarberSection({
 
 /* ---------------- Mercado Pago, Telegram e sinal ---------------- */
 
-function Integrations({ barber, onChange }: { barber: Barber; onChange: () => void }) {
+export function Integrations({ barber, onChange }: { barber: Barber; onChange: () => void }) {
   const [token, setToken] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);

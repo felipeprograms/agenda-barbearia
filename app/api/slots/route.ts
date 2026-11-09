@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { LIMITS, rateLimit } from "@/lib/rateLimit";
 import { barberShopIsOpen } from "@/lib/shopGuard";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getAvailableSlots } from "@/lib/availability";
@@ -9,6 +10,9 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** GET /api/slots?barber=<id>&service=<id>&date=YYYY-MM-DD  ->  { slots: ["09:00", ...] } */
 export async function GET(req: Request) {
+  const limited = await rateLimit(req, LIMITS.slots);
+  if (limited) return limited;
+
   const url = new URL(req.url);
   const barberId = url.searchParams.get("barber") ?? "";
   const serviceId = url.searchParams.get("service") ?? "";

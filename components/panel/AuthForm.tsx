@@ -11,19 +11,33 @@ export default function AuthForm() {
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
 
+  /** Chama /api/auth e devolve { ok, json, wait } (wait = segundos de espera quando bloqueado por limite). */
+  async function callAuth(payload: Record<string, unknown>) {
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json().catch(() => ({}));
+      return { ok: res.ok, status: res.status, json };
+    } catch {
+      return { ok: false, status: 0, json: { error: "Sem conexão. Tente novamente." } };
+    }
+  }
+
   async function submit(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError("");
     setInfo("");
-    const auth = supabaseBrowser().auth;
-    if (mode === "login") {
-      const { error: err } = await auth.signInWithPassword({ email, password });
-      if (err) setError("E-mail ou senha incorretos.");
-    } else {
-      const { data, error: err } = await auth.signUp({ email, password });
-      if (err) setError(err.message);
-      else if (!data.session) setInfo("Enviamos um e-mail de confirmação. Confirme e depois entre.");
+    const r = await callAuth({ action: mode, email, password });
+    if (!r.ok) {
+      setError(r.json.error ?? "Não foi possível continuar.");
+    } else if (r.json.session) {
+      await supabaseBrowser().auth.setSession(r.json.session);
+    } else if (r.json.needsConfirm) {
+      setInfo("Enviamos um e-mail de confirmação. Abra o link dele e depois entre.");
     }
     setBusy(false);
   }
@@ -33,19 +47,10 @@ export default function AuthForm() {
     setInfo("");
     if (!email) return setError("Digite o seu e-mail acima e toque em “Esqueci minha senha” de novo.");
     setBusy(true);
-    const { error: err } = await supabaseBrowser().auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/painel/senha`,
-    });
+    const r = await callAuth({ action: "reset", email });
     setBusy(false);
-    if (err) {
-      setError(
-        /rate|limit|seconds/i.test(err.message)
-          ? "Muitos pedidos em pouco tempo. Espere alguns minutos e tente de novo."
-          : "Não foi possível enviar o e-mail agora. Tente novamente em instantes.",
-      );
-    } else {
-      setInfo("Se este e-mail tiver conta, enviamos um link para criar uma nova senha. Olhe também o spam.");
-    }
+    if (r.ok) setInfo("Se este e-mail tiver conta, enviamos um link para criar uma nova senha. Olhe também o spam.");
+    else setError(r.json.error ?? "Não foi possível enviar o e-mail agora.");
   }
 
   return (
@@ -65,12 +70,12 @@ export default function AuthForm() {
           <input id="email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div>
-          <label htmlFor="password">Senha (mínimo 6 caracteres)</label>
+          <label htmlFor="password">Senha (mínimo 8 caracteres)</label>
           <input
             id="password"
             type="password"
             required
-            minLength={6}
+            minLength={mode === "signup" ? 8 : 1}
             autoComplete={mode === "login" ? "current-password" : "new-password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}

@@ -10,6 +10,7 @@ import ShopSection from "@/components/panel/ShopSection";
 import PasswordForm from "@/components/panel/PasswordForm";
 import PlanSection from "@/components/panel/PlanSection";
 import TeamSection from "@/components/panel/TeamSection";
+import { BarberWizardLauncher, ShopWizardLauncher } from "@/components/panel/SetupWizards";
 import ProfileSection from "@/components/panel/ProfileSection";
 import BarberSection from "@/components/panel/BarberSection";
 import BrandBar from "@/components/BrandBar";
@@ -91,6 +92,8 @@ export default function PainelPage() {
         <StatusBanner status={barberShop.status} paidUntil={barberShop.paid_until} />
       )}
 
+      {loaded && ownedShop && <ShopWizardLauncher shop={ownedShop} onChange={reload} />}
+
       {loaded && ownedShop && <PlanSection shop={ownedShop} onChange={reload} />}
 
       {loaded && ownedShop && <ShopSection shop={ownedShop} />}
@@ -98,6 +101,8 @@ export default function PainelPage() {
       {loaded && ownedShop && <ProfileSection key={ownedShop.id} shop={ownedShop} onChange={reload} />}
 
       {loaded && ownedShop && <TeamSection shop={ownedShop} myUserId={session.user.id} onChange={reload} />}
+
+      {loaded && barber && <BarberWizardLauncher barber={barber} shop={barberShop} onChange={reload} />}
 
       {loaded && barber && <BarberSection barber={barber} shop={barberShop} onChange={reload} />}
     </div>

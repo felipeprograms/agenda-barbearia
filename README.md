@@ -173,3 +173,12 @@ Fundo em degradê (sem quadriculado), menu flutuando sobre a imagem inicial, bar
   No Supabase: *Authentication → URL Configuration* precisa ter o endereço do site em **Site URL** e `https://SEU-SITE.vercel.app/**` em **Redirect URLs**.
 - **Alterar minha senha:** dentro do painel (donos e barbeiros) e do /admin (administrador), mínimo 8 caracteres.
 - **Admin troca a senha de um dono:** em `/admin`, no cartão da barbearia, "Definir uma nova senha para o dono". Útil quando o e-mail do Supabase não chega.
+
+## Limite de requisições (rate limit)
+
+`lib/rateLimit.ts` conta as chamadas por IP (e por e-mail no login) e responde **429** com o cabeçalho **Retry-After**. Os limites de cada rota estão em `LIMITS` no mesmo arquivo. Login, cadastro e "esqueci minha senha" passam por `/api/auth`. Para valer entre todas as instâncias, rode `supabase/migracao-limites.sql` (sem ela, usa um contador em memória por instância). O projeto não tem chamadas de IA; a regra `ai` já existe para quando houver.
+
+## Assistentes em popup e calendário
+
+- Painel: "Assistente de configuração da barbearia" (nome, contato, horário, logo e fundo) e "Assistente de configuração do barbeiro" (foto, serviços, horários, Mercado Pago, Telegram). Abrem sozinhos na primeira vez; cada passo tem (i), "Está certo, continuar", "Voltar" e "Fazer depois".
+- Agendamento: calendário com todos os dias do mês e seletor de mês. O limite de antecedência fica em `MAX_DAYS_AHEAD` (`lib/config.ts`, hoje 60 dias).

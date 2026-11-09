@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { LIMITS, rateLimit } from "@/lib/rateLimit";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { adminFromRequest } from "@/lib/adminAuth";
 import { addDays, todayLocal } from "@/lib/time";
@@ -14,6 +15,9 @@ function fail(status: number, error: string) {
 
 /** GET: lista todas as barbearias com números para você decidir e cobrar. */
 export async function GET(req: Request) {
+  const limited = await rateLimit(req, LIMITS.admin);
+  if (limited) return limited;
+
   if (!(await adminFromRequest(req))) return fail(403, "Sem permissão.");
   const admin = supabaseAdmin();
   const since = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
@@ -84,6 +88,9 @@ export async function GET(req: Request) {
  *                 Se houver agendamentos pagos futuros, responde 409 até receber "force": true.
  */
 export async function POST(req: Request) {
+  const limited = await rateLimit(req, LIMITS.admin);
+  if (limited) return limited;
+
   if (!(await adminFromRequest(req))) return fail(403, "Sem permissão.");
 
   let body: Record<string, unknown>;

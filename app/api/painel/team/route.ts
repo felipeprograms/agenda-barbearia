@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { LIMITS, rateLimit } from "@/lib/rateLimit";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { userFromRequest } from "@/lib/authServer";
 import { isShopOpen } from "@/lib/shopStatus";
@@ -27,6 +28,9 @@ function slugify(s: string): string {
  *  - sem me: barbeiro sem login; ele conecta o Mercado Pago pelo link de conexão.
  */
 export async function POST(req: Request) {
+  const limited = await rateLimit(req, LIMITS.painelWrite);
+  if (limited) return limited;
+
   const user = await userFromRequest(req);
   if (!user) return fail(401, "Faça login novamente.");
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { LIMITS, rateLimit } from "@/lib/rateLimit";
 import { getBarberAccessToken } from "@/lib/mpOAuth";
 import { barberShopIsOpen } from "@/lib/shopGuard";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
@@ -21,6 +22,9 @@ function fail(status: number, error: string) {
  * Reserva o horário por HOLD_MINUTES minutos e gera o Pix na conta do barbeiro.
  */
 export async function POST(req: Request) {
+  const limited = await rateLimit(req, LIMITS.book);
+  if (limited) return limited;
+
   let body: Record<string, unknown>;
   try {
     body = await req.json();

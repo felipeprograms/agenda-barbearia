@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { LIMITS, rateLimit } from "@/lib/rateLimit";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { userFromRequest } from "@/lib/authServer";
 import { APP_URL } from "@/lib/config";
@@ -17,6 +18,9 @@ function fail(status: number, error: string) {
  * Pix: devolve { id, qrCode, qrCodeBase64 }. Cartão: devolve { id, url } (página segura do Mercado Pago).
  */
 export async function POST(req: Request) {
+  const limited = await rateLimit(req, LIMITS.painelPay);
+  if (limited) return limited;
+
   const user = await userFromRequest(req);
   if (!user) return fail(401, "Faça login novamente.");
 

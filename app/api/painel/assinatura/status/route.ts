@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { LIMITS, rateLimit } from "@/lib/rateLimit";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { userFromRequest } from "@/lib/authServer";
 import { settleSubscription } from "@/lib/subscription";
@@ -7,6 +8,9 @@ export const dynamic = "force-dynamic";
 
 /** POST { id } — confere se a mensalidade já foi paga (a tela chama de tempo em tempo). */
 export async function POST(req: Request) {
+  const limited = await rateLimit(req, LIMITS.painelPoll);
+  if (limited) return limited;
+
   const user = await userFromRequest(req);
   if (!user) return NextResponse.json({ error: "Faça login novamente." }, { status: 401 });
   const id = String((await req.json().catch(() => ({}))).id ?? "");

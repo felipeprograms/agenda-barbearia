@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { LIMITS, rateLimit } from "@/lib/rateLimit";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { userFromRequest } from "@/lib/authServer";
 import { checkAccessToken } from "@/lib/mercadopago";
@@ -8,6 +9,9 @@ export const dynamic = "force-dynamic";
 
 /** POST { token, barberId? } — cola o Access Token do Mercado Pago do barbeiro (o dono pode informar barberId). */
 export async function POST(req: Request) {
+  const limited = await rateLimit(req, LIMITS.painelToken);
+  if (limited) return limited;
+
   const user = await userFromRequest(req);
   if (!user) return NextResponse.json({ error: "Faça login novamente." }, { status: 401 });
 

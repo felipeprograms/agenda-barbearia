@@ -29,6 +29,23 @@ function dayParts(date: string) {
   return { weekday, day, month };
 }
 
+function monthLabel(m: string) {
+  const d = new Date(`${m}-01T12:00:00Z`);
+  const txt = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric", timeZone: "UTC" }).format(d);
+  return txt.charAt(0).toUpperCase() + txt.slice(1);
+}
+
+/** Todos os dias do mês em linhas de 7 (null = espaço vazio antes do dia 1). */
+function monthCells(m: string): (string | null)[] {
+  const [y, mo] = m.split("-").map(Number);
+  const blanks = new Date(Date.UTC(y, mo - 1, 1)).getUTCDay();
+  const total = new Date(Date.UTC(y, mo, 0)).getUTCDate();
+  return [
+    ...Array.from({ length: blanks }, () => null),
+    ...Array.from({ length: total }, (_, i) => `${m}-${String(i + 1).padStart(2, "0")}`),
+  ];
+}
+
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   const first = parts[0]?.[0] ?? "";
@@ -106,7 +123,24 @@ export default function BookingFlow({
 
   const barber = barbers.find((b) => b.id === barberId) ?? null;
   const service = barber?.services.find((s) => s.id === serviceId) ?? null;
-  const dates = useMemo(() => Array.from({ length: maxDays + 1 }, (_, i) => addDays(today, i)), [today, maxDays]);
+  const lastDate = useMemo(() => addDays(today, maxDays), [today, maxDays]);
+  const months = useMemo(() => {
+    const out: string[] = [];
+    let [y, m] = today.slice(0, 7).split("-").map(Number);
+    const end = lastDate.slice(0, 7);
+    for (;;) {
+      const key = `${y}-${String(m).padStart(2, "0")}`;
+      out.push(key);
+      if (key >= end) break;
+      m += 1;
+      if (m > 12) {
+        m = 1;
+        y += 1;
+      }
+    }
+    return out;
+  }, [today, lastDate]);
+  const [month, setMonth] = useState(today.slice(0, 7));
 
   // Mesma conta que o servidor faz: sinal em % do preço, no mínimo R$ 1,00 e no máximo o preço.
   const deposit =
@@ -423,18 +457,49 @@ export default function BookingFlow({
       {barber && service && !time && (
         <div className="step">
           <h2 className="step-title">Escolha o dia e o horário</h2>
-          <div className="days" role="group" aria-label="Dias disponíveis">
-            {dates.map((d) => {
-              const p = dayParts(d);
-              return (
-                <button key={d} className="day" aria-pressed={date === d} onClick={() => setDate(d)}>
-                  <span className="wd">{p.weekday}</span>
-                  <span className="dn">{p.day}</span>
-                  <span className="mo">{p.month}</span>
-                </button>
-              );
-            })}
+          <div className="cal-head">
+            <button className="btn btn-small" type="button" aria-label="Mês anterior" disabled={months.indexOf(month) <= 0} onClick={() => setMonth(months[months.indexOf(month) - 1])}>
+              ‹
+            </button>
+            <select aria-label="Mês" value={month} onChange={(e) => setMonth(e.target.value)}>
+              {months.map((m) => (
+                <option key={m} value={m}>
+                  {monthLabel(m)}
+                </option>
+              ))}
+            </select>
+            <button className="btn btn-small" type="button" aria-label="Próximo mês" disabled={months.indexOf(month) >= months.length - 1} onClick={() => setMonth(months[months.indexOf(month) + 1])}>
+              ›
+            </button>
           </div>
+          <div className="cal" role="group" aria-label="Dias do mês">
+            {["D", "S", "T", "Q", "Q", "S", "S"].map((w, i) => (
+              <span className="cal-wd" key={i} aria-hidden="true">
+                {w}
+              </span>
+            ))}
+            {monthCells(month).map((d, i) =>
+              d === null ? (
+                <span key={`b${i}`} />
+              ) : (
+                <button
+                  key={d}
+                  type="button"
+                  className="cal-day"
+                  aria-pressed={date === d}
+                  disabled={d < today || d > lastDate}
+                  onClick={() => setDate(d)}
+                >
+                  {Number(d.slice(8))}
+                </button>
+              ),
+            )}
+          </div>
+          {date && (
+            <p className="muted" style={{ margin: "4px 0 0" }}>
+              {dayParts(date).weekday}, {dayParts(date).day} de {dayParts(date).month}
+            </p>
+          )}
 
           {!date && <p className="muted">Escolha um dia para ver os horários livres.</p>}
           {date && slotsError && <p className="error" role="alert">{slotsError}</p>}
