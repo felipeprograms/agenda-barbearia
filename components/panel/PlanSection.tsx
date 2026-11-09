@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import PlanCards from "@/components/PlanCards";
-import { PLAN_LABEL, type PlanId } from "@/lib/plans";
+import { PLAN_LABEL, PLANS, priceFor, type PlanId } from "@/lib/plans";
 import { copyText, postAuthed, type ShopBasic } from "@/lib/panelUtils";
 import { formatDateBR, shopState } from "@/lib/shopStatus";
-import { addDays, todayLocal } from "@/lib/time";
+import { addDays, formatBRL, todayLocal } from "@/lib/time";
 
 type Pix = { id: string; qrCode: string; qrCodeBase64: string; plan: PlanId };
 
@@ -15,6 +15,7 @@ export default function PlanSection({ shop, onChange }: { shop: ShopBasic; onCha
   const [error, setError] = useState("");
   const [pix, setPix] = useState<Pix | null>(null);
   const [done, setDone] = useState(false);
+  const [choosing, setChoosing] = useState<PlanId | null>(null);
   const [copied, setCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -68,6 +69,7 @@ export default function PlanSection({ shop, onChange }: { shop: ShopBasic; onCha
       window.location.href = r.data.url;
       return;
     }
+    setChoosing(null);
     setPix({ id, qrCode: String(r.data?.qrCode ?? ""), qrCodeBase64: String(r.data?.qrCodeBase64 ?? ""), plan });
     startPolling(id);
   }
@@ -136,17 +138,37 @@ export default function PlanSection({ shop, onChange }: { shop: ShopBasic; onCha
               </button>
             </div>
           </div>
+        ) : choosing ? (
+          <div className="stack">
+            <h3>Como você quer pagar o plano {PLANS[choosing].name}?</h3>
+            <div className="pay-methods">
+              {(["pix", "card"] as const).map((m) => (
+                <button
+                  key={m}
+                  className="pay-method"
+                  disabled={!!busy}
+                  onClick={() => pay(choosing, m)}
+                >
+                  <strong>{m === "pix" ? "Pix" : "Cartão"}</strong>
+                  <span>{m === "pix" ? "QR Code ou copia e cola" : "Página segura do Mercado Pago"}</span>
+                  <span className="pay-method-price">
+                    {busy === `${choosing}-${m}` ? "Abrindo…" : formatBRL(priceFor(choosing, m))}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div>
+              <button className="btn btn-small" onClick={() => setChoosing(null)}>
+                Voltar aos planos
+              </button>
+            </div>
+          </div>
         ) : (
           <PlanCards
             action={(plan) => (
-              <div className="plan-actions">
-                <button className="plan-cta" disabled={!!busy} onClick={() => pay(plan, "pix")}>
-                  {busy === `${plan}-pix` ? "Gerando…" : "Pagar com Pix"}
-                </button>
-                <button className="plan-cta plan-cta-outline" disabled={!!busy} onClick={() => pay(plan, "card")}>
-                  {busy === `${plan}-card` ? "Abrindo…" : "Pagar com cartão"}
-                </button>
-              </div>
+              <button className="plan-cta" disabled={!!busy} onClick={() => setChoosing(plan)}>
+                Assinar agora
+              </button>
             )}
           />
         )}

@@ -95,7 +95,7 @@ export default function Home() {
       <section className="section" id="planos">
         <div className="wrap">
           <h2 className="section-title">Planos</h2>
-          <p className="section-sub">Sem taxa de adesão e sem comissão. O sinal dos clientes cai direto na conta dos barbeiros.</p>
+          <p className="section-sub">Sem taxa de adesão. O sinal dos clientes cai direto na conta dos barbeiros.</p>
           <PlanCards />
         </div>
       </section>

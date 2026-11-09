@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { userFromRequest } from "@/lib/authServer";
 import { APP_URL } from "@/lib/config";
 import { createCardCheckout, createPixPayment } from "@/lib/mercadopago";
-import { PLANS, isPlanId } from "@/lib/plans";
+import { PLANS, isPlanId, priceFor } from "@/lib/plans";
 import { platformToken } from "@/lib/subscription";
 
 export const dynamic = "force-dynamic";
@@ -35,9 +35,10 @@ export async function POST(req: Request) {
   if (shop.status === "suspended") return fail(403, "O acesso está suspenso. Fale com o administrador.");
 
   const plan = PLANS[planId];
+  const amount = priceFor(planId, method);
   const { data: row, error } = await admin
     .from("subscription_payments")
-    .insert({ shop_id: shop.id, plan: plan.id, method, amount_cents: plan.cents, days: plan.days })
+    .insert({ shop_id: shop.id, plan: plan.id, method, amount_cents: amount, days: plan.days })
     .select("id")
     .single();
   if (error || !row) {
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
     if (method === "pix") {
       const pix = await createPixPayment(token, {
         bookingId: row.id,
-        amountCents: plan.cents,
+        amountCents: amount,
         description: title,
         payerEmail: user.email ?? "pagador@example.com",
         payerName: shop.name,
@@ -65,7 +66,7 @@ export async function POST(req: Request) {
 
     const url = await createCardCheckout(token, {
       bookingId: row.id,
-      amountCents: plan.cents,
+      amountCents: amount,
       title,
       payerName: shop.name,
       payerEmail: user.email ?? undefined,

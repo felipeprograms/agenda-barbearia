@@ -10,7 +10,6 @@ const FEATURES = [
   "Sinal por Pix ou cartão direto na conta do barbeiro",
   "Horário reservado e protegido contra duplicidade",
   "Aviso no Telegram a cada novo agendamento",
-  "Sem comissão sobre os agendamentos",
 ];
 
 function Price({ cents, small }: { cents: number; small?: boolean }) {
@@ -47,7 +46,7 @@ export default function PlanCards({ action }: { action?: (plan: PlanId) => React
         </ul>
         {action ? action("mensal") : (
           <Link className="plan-cta" href="/painel">
-            Começar agora
+            Assinar agora
           </Link>
         )}
       </article>
@@ -79,7 +78,7 @@ export default function PlanCards({ action }: { action?: (plan: PlanId) => React
         </ul>
         {action ? action("anual") : (
           <Link className="plan-cta plan-cta-outline" href="/painel">
-            Começar agora
+            Assinar agora
           </Link>
         )}
       </article>
