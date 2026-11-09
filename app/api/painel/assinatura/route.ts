@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { userFromRequest } from "@/lib/authServer";
 import { APP_URL } from "@/lib/config";
 import { createCardCheckout, createPixPayment } from "@/lib/mercadopago";
-import { PLANS, isPlanId, priceFor } from "@/lib/plans";
+import { MAX_INSTALLMENTS, PLANS, isPlanId, priceFor } from "@/lib/plans";
 import { platformToken } from "@/lib/subscription";
 
 export const dynamic = "force-dynamic";
@@ -73,6 +73,7 @@ export async function POST(req: Request) {
       notificationUrl,
       returnUrl: APP_URL.startsWith("https://") ? `${APP_URL}/painel?assinatura=${row.id}` : undefined,
       expiresAt: new Date(Date.now() + 24 * 3600_000),
+      maxInstallments: MAX_INSTALLMENTS[planId],
     });
     return NextResponse.json({ id: row.id, url });
   } catch (e) {

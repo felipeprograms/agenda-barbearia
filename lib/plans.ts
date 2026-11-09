@@ -29,9 +29,12 @@ export const PLAN_LABEL: Record<string, string> = { teste: "Teste", mensal: "Men
  * Acréscimo (em %) cobrado a mais de quem paga no cartão, para repassar a taxa do Mercado Pago.
  * 0 = mesmo preço no Pix e no cartão (você absorve a taxa). Exemplo: 5 => cartão 5% mais caro.
  */
-export const CARD_EXTRA_PERCENT = 5;
+export const CARD_EXTRA_PERCENT = 0;
 
 export function priceFor(plan: PlanId, method: "pix" | "card"): number {
   const base = PLANS[plan].cents;
   return method === "card" ? Math.round(base * (1 + CARD_EXTRA_PERCENT / 100)) : base;
 }
+
+/** Máximo de parcelas no cartão em cada plano (1 = só à vista). A taxa do parcelamento é descontada de você pelo Mercado Pago. */
+export const MAX_INSTALLMENTS: Record<PlanId, number> = { mensal: 1, anual: 12 };

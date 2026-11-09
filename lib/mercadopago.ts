@@ -106,6 +106,7 @@ export async function createCardCheckout(
     notificationUrl?: string;
     returnUrl?: string; // precisa ser https para o Mercado Pago aceitar
     expiresAt: Date;
+    maxInstallments?: number; // máximo de parcelas oferecidas (padrão 1 = à vista)
   },
 ): Promise<string> {
   const [firstName, ...rest] = p.payerName.trim().split(/\s+/);
@@ -129,7 +130,7 @@ export async function createCardCheckout(
     payment_methods: {
       // Só cartão: tira boleto, caixa eletrônico e transferência (Pix tem fluxo próprio).
       excluded_payment_types: [{ id: "ticket" }, { id: "atm" }, { id: "bank_transfer" }],
-      installments: 1, // sem parcelamento, para o valor recebido ser o valor cobrado
+      installments: p.maxInstallments ?? 1, // padrão: à vista, para o valor recebido ser o valor cobrado
     },
     expires: true,
     expiration_date_from: toLocalISO(new Date()),
