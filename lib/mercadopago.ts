@@ -177,3 +177,25 @@ export async function findApprovedPayment(
     amount: Number(hit.transaction_amount ?? 0),
   };
 }
+
+/**
+ * Devolve (total) um pagamento ao cliente, usando o token do barbeiro que recebeu.
+ * A chave de idempotência garante que clicar duas vezes não devolve duas vezes.
+ */
+export async function refundPayment(accessToken: string, paymentId: string, idempotencyKey: string): Promise<void> {
+  const res = await fetch(`${MP}/v1/payments/${encodeURIComponent(paymentId)}/refunds`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      "X-Idempotency-Key": idempotencyKey,
+    },
+    body: JSON.stringify({}),
+  });
+  if (res.ok) return;
+  const json = await res.json().catch(() => null);
+  const text = JSON.stringify(json ?? {});
+  // Já devolvido antes: tratamos como sucesso.
+  if (/already|refunded|total amount/i.test(text) && res.status === 400) return;
+  throw new Error(`Mercado Pago ${res.status} ao devolver o pagamento.`);
+}

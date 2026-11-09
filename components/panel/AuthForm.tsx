@@ -81,6 +81,12 @@ export default function AuthForm() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
+        {mode === "signup" && (
+          <p className="muted">
+            Ao criar a conta, você concorda com os <a href="/termos" target="_blank">Termos de uso</a> e a{" "}
+            <a href="/privacidade" target="_blank">Política de privacidade</a>.
+          </p>
+        )}
         {error && <p className="error">{error}</p>}
         {info && <p className="ok">{info}</p>}
         <div className="row">

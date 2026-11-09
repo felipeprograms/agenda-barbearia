@@ -11,6 +11,8 @@ type Info = {
   when: string;
   amountCents: number;
   priceCents: number;
+  canCancel?: boolean;
+  cancelHours?: number;
 };
 
 function Sheet({ children }: { children: ReactNode }) {
@@ -26,6 +28,24 @@ export default function PagamentoPage() {
   const { id } = useParams<{ id: string }>();
   const [info, setInfo] = useState<Info | null>(null);
   const [failed, setFailed] = useState(false);
+  const [cancelBusy, setCancelBusy] = useState(false);
+  const [cancelMsg, setCancelMsg] = useState("");
+
+  async function cancel() {
+    if (!window.confirm("Cancelar este horário? O sinal será devolvido.")) return;
+    setCancelBusy(true);
+    setCancelMsg("");
+    try {
+      const res = await fetch(`/api/booking/${id}/cancel`, { method: "POST" });
+      const json = (await res.json().catch(() => ({}))) as { error?: string };
+      if (res.ok) setInfo((i) => (i ? { ...i, status: "cancelled", canCancel: false } : i));
+      else setCancelMsg(json.error ?? "Não foi possível cancelar.");
+    } catch {
+      setCancelMsg("Sem conexão. Tente novamente.");
+    } finally {
+      setCancelBusy(false);
+    }
+  }
 
   useEffect(() => {
     if (!id) return;
@@ -97,6 +117,17 @@ export default function PagamentoPage() {
           Pagamento de {formatBRL(info.amountCents)} recebido.
           {rest > 0 ? ` Você paga o restante (${formatBRL(rest)}) na barbearia.` : ""}
         </p>
+        {info.canCancel ? (
+          <div className="stack">
+            <button className="btn" onClick={() => void cancel()} disabled={cancelBusy}>
+              {cancelBusy ? "Cancelando…" : "Cancelar e receber o sinal de volta"}
+            </button>
+            <p className="muted">Disponível até {info.cancelHours} horas antes do horário.</p>
+          </div>
+        ) : (
+          <p className="muted">Para cancelar ou remarcar agora, fale com a barbearia.</p>
+        )}
+        {cancelMsg && <p className="error">{cancelMsg}</p>}
       </>
     );
   } else if (info.status === "conflict") {
@@ -106,7 +137,14 @@ export default function PagamentoPage() {
         <p>O barbeiro foi avisado e vai devolver o valor ou combinar um novo horário com você.</p>
       </>
     );
-  } else if (info.status === "expired" || info.status === "cancelled") {
+  } else if (info.status === "cancelled") {
+    content = (
+      <>
+        <h2>Agendamento cancelado</h2>
+        <p className="muted">O horário foi liberado e o sinal foi devolvido pelo mesmo meio de pagamento (pode levar alguns dias para aparecer na fatura ou na conta).</p>
+      </>
+    );
+  } else if (info.status === "expired") {
     content = (
       <>
         <h2>Esse horário foi liberado</h2>

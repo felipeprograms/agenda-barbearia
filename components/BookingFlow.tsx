@@ -277,8 +277,9 @@ export default function BookingFlow({
             </p>
             <p className="muted">
               Pagamento de {formatBRL(pix.amountCents)} recebido.
-              {rest > 0 ? ` Você paga o restante (${formatBRL(rest)}) na barbearia.` : ""} Para remarcar, fale
-              diretamente com a {shopName}.
+              {rest > 0 ? ` Você paga o restante (${formatBRL(rest)}) na barbearia.` : ""} Para cancelar e receber
+              o sinal de volta, <a href={`/pagamento/${pix.bookingId}`}>abra esta página</a> (guarde o link). Para remarcar, fale
+              com a {shopName}.
             </p>
           </div>
         </Sheet>
@@ -299,7 +300,23 @@ export default function BookingFlow({
       );
     }
 
-    if (status === "expired" || status === "cancelled") {
+    if (status === "cancelled") {
+      return (
+        <Sheet>
+          <div className="stack">
+            <h2>Agendamento cancelado</h2>
+            <p>O horário foi liberado e o sinal foi devolvido.</p>
+            <div>
+              <button className="btn btn-primary" onClick={restart}>
+                Escolher outro horário
+              </button>
+            </div>
+          </div>
+        </Sheet>
+      );
+    }
+
+    if (status === "expired") {
       return (
         <Sheet>
           <div className="stack">

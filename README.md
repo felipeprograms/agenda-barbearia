@@ -182,3 +182,10 @@ Fundo em degradê (sem quadriculado), menu flutuando sobre a imagem inicial, bar
 
 - Painel: "Assistente de configuração da barbearia" (nome, contato, horário, logo e fundo) e "Assistente de configuração do barbeiro" (foto, serviços, horários, Mercado Pago, Telegram). Abrem sozinhos na primeira vez; cada passo tem (i), "Está certo, continuar", "Voltar" e "Fazer depois".
 - Agendamento: calendário com todos os dias do mês e seletor de mês. O limite de antecedência fica em `MAX_DAYS_AHEAD` (`lib/config.ts`, hoje 60 dias).
+
+## Segurança, termos e cancelamento
+
+- **Cabeçalhos de segurança** em `next.config.mjs` (anti-clickjacking, nosniff, HSTS, etc.).
+- **Termos de uso** (`/termos`) e **Política de privacidade** (`/privacidade`): textos-modelo, peça revisão de um advogado e preencha seus dados.
+- **Cancelamento com devolução do sinal**: o cliente cancela em `/pagamento/{id}` até `CANCEL_MIN_HOURS` (2h, em `lib/config.ts`) antes; o barbeiro/dono cancela a qualquer momento pelo painel ("Cancelar e devolver sinal"). A devolução é feita no Mercado Pago com o token do barbeiro; se falhar, nada é alterado.
+- **Limite de armazenamento de fotos**: rode `supabase/migracao-armazenamento.sql` (1 MB por arquivo, 40 arquivos por usuário). O site reduz a foto para até 900 KB antes de enviar.

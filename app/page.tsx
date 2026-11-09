@@ -115,7 +115,10 @@ export default function Home() {
       <footer className="foot">
         <div className="wrap foot-in">
           <span>{BRAND}</span>
-          <Link href="/painel">Entrar no painel</Link>
+          <span>
+            <Link href="/termos">Termos</Link> · <Link href="/privacidade">Privacidade</Link> ·{" "}
+            <Link href="/painel">Entrar no painel</Link>
+          </span>
         </div>
       </footer>
     </>

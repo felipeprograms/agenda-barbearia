@@ -422,6 +422,21 @@ type BookingRow = {
 
 function Bookings({ barber }: { barber: Barber }) {
   const [items, setItems] = useState<BookingRow[]>([]);
+  const [cancelling, setCancelling] = useState("");
+  const [cancelMsg, setCancelMsg] = useState("");
+
+  async function cancel(b: BookingRow) {
+    if (!window.confirm(`Cancelar o horário de ${b.customer_name} e devolver ${formatBRL(b.amount_cents)} pelo Mercado Pago?`)) return;
+    setCancelling(b.id);
+    setCancelMsg("");
+    try {
+      const r = await postAuthed("/api/painel/cancel", { bookingId: b.id });
+      setCancelMsg(r.ok ? "Cancelado e valor devolvido." : (r.error ?? "Não foi possível cancelar."));
+      if (r.ok) await load();
+    } finally {
+      setCancelling("");
+    }
+  }
 
   const load = useCallback(async () => {
     const since = new Date(Date.now() - 2 * 3600_000).toISOString();
@@ -447,6 +462,7 @@ function Bookings({ barber }: { barber: Barber }) {
           Atualizar
         </button>
       </div>
+      {cancelMsg && <p className="muted">{cancelMsg}</p>}
       {items.length === 0 && <p className="muted">Nenhum agendamento por enquanto.</p>}
       {items.map((b) => {
         const wa = b.customer_phone.length <= 11 ? `55${b.customer_phone}` : b.customer_phone;
@@ -464,7 +480,12 @@ function Bookings({ barber }: { barber: Barber }) {
                 Sinal pago: {formatBRL(b.amount_cents)} de {formatBRL(b.price_cents)}
               </div>
             </div>
-            {b.status === "conflict" && <span className="badge warn">devolver Pix</span>}
+            <div className="row">
+              {b.status === "conflict" && <span className="badge warn">devolver Pix</span>}
+              <button className="btn btn-small" disabled={cancelling === b.id} onClick={() => void cancel(b)}>
+                {cancelling === b.id ? "Cancelando…" : "Cancelar e devolver sinal"}
+              </button>
+            </div>
           </div>
         );
       })}

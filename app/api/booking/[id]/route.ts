@@ -3,6 +3,7 @@ import { LIMITS, rateLimit } from "@/lib/rateLimit";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { settleBooking } from "@/lib/settle";
 import { formatDateTimeBR } from "@/lib/time";
+import { CANCEL_MIN_HOURS } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 
@@ -43,5 +44,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     when: formatDateTimeBR(data.starts_at),
     amountCents: data.amount_cents,
     priceCents: data.price_cents,
+    canCancel: status === "confirmed" && new Date(data.starts_at).getTime() - Date.now() >= CANCEL_MIN_HOURS * 3600_000,
+    cancelHours: CANCEL_MIN_HOURS,
   });
 }

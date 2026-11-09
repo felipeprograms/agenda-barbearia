@@ -7,6 +7,7 @@ export const LIMITS = {
   book: { name: "book", max: 8, windowSec: 600 }, // cria reserva e chama o Mercado Pago
   slots: { name: "slots", max: 60, windowSec: 60 },
   bookingStatus: { name: "bkst", max: 120, windowSec: 60 }, // a tela confere de poucos em poucos segundos
+  bookingCancel: { name: "bkcx", max: 10, windowSec: 600 },
   connect: { name: "conn", max: 10, windowSec: 600 },
   mpCallback: { name: "mpcb", max: 20, windowSec: 600 },
   webhook: { name: "hook", max: 300, windowSec: 60 }, // webhooks do Mercado Pago e do Telegram

@@ -292,7 +292,9 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
       <footer className="foot">
         <div className="wrap foot-in">
           <span>{shop.name}</span>
-          <a href="#topo">Voltar ao topo</a>
+          <span>
+            <a href="/termos">Termos</a> · <a href="/privacidade">Privacidade</a> · <a href="#topo">Voltar ao topo</a>
+          </span>
         </div>
       </footer>
     </div>
