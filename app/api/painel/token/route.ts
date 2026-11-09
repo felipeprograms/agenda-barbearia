@@ -2,17 +2,21 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { userFromRequest } from "@/lib/authServer";
 import { checkAccessToken } from "@/lib/mercadopago";
+import { resolveBarberId } from "@/lib/barberAccess";
 
 export const dynamic = "force-dynamic";
 
-/** POST { token } — o barbeiro cola o Access Token do próprio Mercado Pago. */
+/** POST { token, barberId? } — cola o Access Token do Mercado Pago do barbeiro (o dono pode informar barberId). */
 export async function POST(req: Request) {
   const user = await userFromRequest(req);
   if (!user) return NextResponse.json({ error: "Faça login novamente." }, { status: 401 });
 
   let token = "";
+  let barberIdIn: string | undefined;
   try {
-    token = String((await req.json()).token ?? "").trim();
+    const body = await req.json();
+    token = String(body.token ?? "").trim();
+    barberIdIn = body.barberId ? String(body.barberId) : undefined;
   } catch {
     /* corpo inválido */
   }
@@ -28,8 +32,9 @@ export async function POST(req: Request) {
   }
 
   const admin = supabaseAdmin();
-  const { data: barber } = await admin.from("barbers").select("id").eq("user_id", user.id).maybeSingle();
-  if (!barber) return NextResponse.json({ error: "Cadastro de barbeiro não encontrado." }, { status: 404 });
+  const barberId = await resolveBarberId(admin, user.id, barberIdIn);
+  if (!barberId) return NextResponse.json({ error: "Cadastro de barbeiro não encontrado." }, { status: 404 });
+  const barber = { id: barberId };
 
   const { error: secretError } = await admin
     .from("barber_secrets")

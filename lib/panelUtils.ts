@@ -27,6 +27,8 @@ export type Barber = {
   photo_url: string | null;
   mp_connected: boolean;
   active: boolean;
+  user_id?: string | null;
+  connect_token?: string;
 };
 
 export const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];

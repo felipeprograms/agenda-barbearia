@@ -202,7 +202,7 @@ function Integrations({ barber, onChange }: { barber: Barber; onChange: () => vo
 
 type Service = { id: string; name: string; price_cents: number; duration_min: number };
 
-function Services({ barber }: { barber: Barber }) {
+export function Services({ barber }: { barber: Barber }) {
   const [items, setItems] = useState<Service[]>([]);
   const [form, setForm] = useState({ name: "", price: "", duration: "30" });
   const [error, setError] = useState("");
@@ -296,7 +296,7 @@ function Services({ barber }: { barber: Barber }) {
 
 type Hour = { id: string; weekday: number; start_time: string; end_time: string };
 
-function Hours({ barber }: { barber: Barber }) {
+export function Hours({ barber }: { barber: Barber }) {
   const [items, setItems] = useState<Hour[]>([]);
   const [form, setForm] = useState({ weekday: "1", start: "09:00", end: "19:00" });
   const [error, setError] = useState("");
@@ -474,7 +474,7 @@ function Bookings({ barber }: { barber: Barber }) {
 
 /* ---------------- Foto do barbeiro ---------------- */
 
-function PhotoCard({ barber, onChange }: { barber: Barber; onChange: () => void }) {
+export function PhotoCard({ barber, onChange }: { barber: Barber; onChange: () => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 

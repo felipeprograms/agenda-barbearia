@@ -5,7 +5,7 @@ import { supabaseBrowser } from "@/lib/supabaseBrowser";
 import { removePhoto, uploadPhoto } from "@/lib/photos";
 import type { Shop } from "@/lib/panelUtils";
 
-const MAX_GALLERY = 6;
+const MAX_GALLERY = 3;
 
 /** "@meu.insta", "instagram.com/meu.insta?x=1" -> "meu.insta" */
 function cleanInstagram(v: string): string {
@@ -219,8 +219,7 @@ export default function ProfileSection({ shop, onChange }: { shop: Shop; onChang
       <div>
         <h3>Galeria ({shop.gallery.length} de {MAX_GALLERY})</h3>
         <p className="muted">
-          Cortes, barbas, o ambiente. As 3 primeiras fotos aparecem sobrepostas em “Sobre a barbearia” e as 3 seguintes
-          em “Serviços”. Você pode escolher várias de uma vez.
+          Cortes, barbas, o ambiente. Até 3 fotos aparecem sobrepostas na seção “Sobre”, no fim da página. Você pode escolher várias de uma vez.
         </p>
         {shop.gallery.length > 0 && (
           <div className="thumbs">

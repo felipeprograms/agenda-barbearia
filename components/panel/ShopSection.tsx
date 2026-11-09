@@ -6,12 +6,10 @@ import { copyText, type ShopBasic } from "@/lib/panelUtils";
 import { isShopOpen } from "@/lib/shopStatus";
 
 type Invite = { code: string; used_by: string | null };
-type Member = { id: string; name: string; slug: string; active: boolean; mp_connected: boolean };
 
-/** Área do dono: link da barbearia, convites e lista de barbeiros. */
+/** Área do dono: link da barbearia e convites opcionais. */
 export default function ShopSection({ shop }: { shop: ShopBasic }) {
   const [invites, setInvites] = useState<Invite[]>([]);
-  const [team, setTeam] = useState<Member[]>([]);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState("");
 
@@ -21,12 +19,12 @@ export default function ShopSection({ shop }: { shop: ShopBasic }) {
 
   const load = useCallback(async () => {
     const db = supabaseBrowser();
-    const [inv, mem] = await Promise.all([
-      db.from("invites").select("code,used_by").eq("shop_id", shop.id).order("created_at", { ascending: false }),
-      db.from("barbers").select("id,name,slug,active,mp_connected").eq("shop_id", shop.id).order("name"),
-    ]);
+    const inv = await db
+      .from("invites")
+      .select("code,used_by")
+      .eq("shop_id", shop.id)
+      .order("created_at", { ascending: false });
     setInvites((inv.data ?? []) as Invite[]);
-    setTeam((mem.data ?? []) as Member[]);
   }, [shop.id]);
 
   useEffect(() => {
@@ -52,11 +50,6 @@ export default function ShopSection({ shop }: { shop: ShopBasic }) {
     await load();
   }
 
-  async function toggle(m: Member) {
-    await supabaseBrowser().from("barbers").update({ active: !m.active }).eq("id", m.id);
-    await load();
-  }
-
   return (
     <div className="card stack">
       <div>
@@ -70,29 +63,8 @@ export default function ShopSection({ shop }: { shop: ShopBasic }) {
         </div>
       </div>
 
-      <div>
-        <h3>Barbeiros</h3>
-        {team.length === 0 && <p className="muted">Nenhum barbeiro ainda. Gere um convite abaixo.</p>}
-        {team.map((m) => (
-          <div className="item" key={m.id}>
-            <div>
-              <strong>{m.name}</strong>{" "}
-              <span className={`badge ${m.mp_connected ? "ok" : "warn"}`}>
-                {m.mp_connected ? "Pix ativo" : "falta conectar Mercado Pago"}
-              </span>
-              <div className="muted">
-                {origin}/{shop.slug}/{m.slug}
-              </div>
-            </div>
-            <button className="btn btn-small" onClick={() => toggle(m)}>
-              {m.active ? "Desativar" : "Ativar"}
-            </button>
-          </div>
-        ))}
-      </div>
-
-      <div>
-        <h3>Convidar barbeiro</h3>
+      <details>
+        <summary><strong>Prefere que o barbeiro tenha login próprio? Gerar convite</strong></summary>
         {!open && (
           <p className="muted">
             Os convites ficam disponíveis quando a barbearia estiver liberada e com a mensalidade em dia.
@@ -131,7 +103,7 @@ export default function ShopSection({ shop }: { shop: ShopBasic }) {
             )}
           </div>
         ))}
-      </div>
+      </details>
     </div>
   );
 }

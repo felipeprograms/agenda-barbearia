@@ -5,7 +5,18 @@ import { exchangeCode, oauthConfigured, readState, saveOAuthTokens } from "@/lib
 
 export const dynamic = "force-dynamic";
 
-function back(result: "ok" | "erro") {
+/** Barbeiro sem login volta para o link de conexão dele; quem tem login volta para o painel. */
+async function back(result: "ok" | "erro", barberId?: string | null) {
+  if (barberId) {
+    const { data } = await supabaseAdmin()
+      .from("barbers")
+      .select("user_id,connect_token")
+      .eq("id", barberId)
+      .maybeSingle();
+    if (data && !data.user_id && data.connect_token) {
+      return NextResponse.redirect(`${APP_URL}/conectar/${data.connect_token}?mp=${result}`);
+    }
+  }
   return NextResponse.redirect(`${APP_URL}/painel?mp=${result}`);
 }
 
@@ -14,17 +25,16 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code") ?? "";
   const state = url.searchParams.get("state") ?? "";
-
-  if (!oauthConfigured() || !code) return back("erro"); // inclui o caso de o barbeiro ter recusado
   const barberId = readState(state);
-  if (!barberId) return back("erro");
+
+  if (!oauthConfigured() || !code || !barberId) return back("erro", barberId); // inclui o caso de recusar
 
   try {
     const tokens = await exchangeCode(code);
     await saveOAuthTokens(supabaseAdmin(), barberId, tokens);
-    return back("ok");
+    return back("ok", barberId);
   } catch (e) {
     console.error("callback MP:", e);
-    return back("erro");
+    return back("erro", barberId);
   }
 }

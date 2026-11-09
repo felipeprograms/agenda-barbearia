@@ -7,9 +7,9 @@ import type { Barber, Shop, ShopBasic } from "@/lib/panelUtils";
 import AuthForm from "@/components/panel/AuthForm";
 import Onboarding from "@/components/panel/Onboarding";
 import ShopSection from "@/components/panel/ShopSection";
+import TeamSection from "@/components/panel/TeamSection";
 import ProfileSection from "@/components/panel/ProfileSection";
 import BarberSection from "@/components/panel/BarberSection";
-import BarberForm from "@/components/panel/BarberForm";
 import BrandBar from "@/components/BrandBar";
 import StatusBanner from "@/components/panel/StatusBanner";
 
@@ -84,15 +84,7 @@ export default function PainelPage() {
 
       {loaded && ownedShop && <ProfileSection key={ownedShop.id} shop={ownedShop} onChange={reload} />}
 
-      {loaded && ownedShop && !barber && (
-        <div className="card stack">
-          <h2>Você também atende clientes?</h2>
-          <p className="muted">
-            Crie seu cadastro de barbeiro para ter agenda, receber Pix na sua conta e aparecer na página da barbearia.
-          </p>
-          <BarberForm invite={false} onDone={reload} />
-        </div>
-      )}
+      {loaded && ownedShop && <TeamSection shop={ownedShop} myUserId={session.user.id} onChange={reload} />}
 
       {loaded && barber && <BarberSection barber={barber} shop={barberShop} onChange={reload} />}
     </div>

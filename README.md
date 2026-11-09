@@ -147,3 +147,15 @@ No painel, em **Perfil da barbearia**, há dois campos:
 - **Imagem de fundo da tela inicial**: aparece desfocada e escurecida atrás da frase.
 
 Fotos da galeria (até 6): as 3 primeiras ficam em "Sobre a barbearia" e as 3 seguintes em "Serviços", em composição de fotos sobrepostas. Os barbeiros aparecem em grupos de 3 fotos sobrepostas. A fonte Anton da frase é carregada do Google Fonts (precisa de internet). Não há migração nova no Supabase para esta mudança.
+
+## Cadastro de barbeiros pelo dono (sem convite)
+
+No painel, em **Barbeiros da barbearia**, o dono cadastra quantos barbeiros quiser (botão "+ Adicionar mais um barbeiro"), marca "Este barbeiro sou eu" quando também atende e ativa/desativa cada um. Em **Configurar** ele edita foto, sinal, serviços e horários de cada barbeiro.
+
+Para o dinheiro cair na conta de cada barbeiro, o dono envia o **link de conexão** (`/conectar/<código secreto>`): o barbeiro, sem criar conta, conecta o próprio Mercado Pago e o Telegram. O convite com login próprio continua disponível, recolhido, na área da barbearia.
+
+**Obrigatório:** rodar `supabase/migracao-equipe.sql` no Supabase (SQL Editor) antes de publicar.
+
+## Visual da página da barbearia
+
+Fundo em degradê (sem quadriculado), menu flutuando sobre a imagem inicial, barbeiros em fotos redondas ao lado dos serviços, agendamento com cartões que se elevam e seção "Sobre" discreta no fim. A fonte Barlow Condensed e a Anton vêm do Google Fonts (precisam de internet).

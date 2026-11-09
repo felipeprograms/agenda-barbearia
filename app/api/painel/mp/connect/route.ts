@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { userFromRequest } from "@/lib/authServer";
+import { resolveBarberId } from "@/lib/barberAccess";
 import { authorizationUrl, makeState, oauthConfigured } from "@/lib/mpOAuth";
 
 export const dynamic = "force-dynamic";
 
 /** POST — devolve o endereço do Mercado Pago onde o barbeiro entra e autoriza a conexão. */
 export async function POST(req: Request) {
+  const body = await req.json().catch(() => ({}));
   const user = await userFromRequest(req);
   if (!user) return NextResponse.json({ error: "Faça login novamente." }, { status: 401 });
 
@@ -17,8 +19,8 @@ export async function POST(req: Request) {
     );
   }
 
-  const { data: barber } = await supabaseAdmin().from("barbers").select("id").eq("user_id", user.id).maybeSingle();
-  if (!barber) return NextResponse.json({ error: "Cadastro de barbeiro não encontrado." }, { status: 404 });
+  const barberId = await resolveBarberId(supabaseAdmin(), user.id, body.barberId ? String(body.barberId) : undefined);
+  if (!barberId) return NextResponse.json({ error: "Cadastro de barbeiro não encontrado." }, { status: 404 });
 
-  return NextResponse.json({ url: authorizationUrl(makeState(barber.id)) });
+  return NextResponse.json({ url: authorizationUrl(makeState(barberId)) });
 }

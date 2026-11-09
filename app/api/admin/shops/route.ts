@@ -161,7 +161,9 @@ async function deleteShop(admin: ReturnType<typeof supabaseAdmin>, shop: ShopRow
 
   const { data: team } = await admin.from("barbers").select("id,user_id").eq("shop_id", shop.id);
   const barberIds = (team ?? []).map((b) => b.id as string);
-  const userIds = [...new Set([shop.owner_user_id, ...(team ?? []).map((b) => b.user_id as string)])];
+  const userIds = [
+    ...new Set([shop.owner_user_id, ...(team ?? []).map((b) => b.user_id as string | null)]),
+  ].filter((u): u is string => Boolean(u));
 
   if (body.force !== true && barberIds.length > 0) {
     const { count } = await admin
