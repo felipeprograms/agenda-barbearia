@@ -77,6 +77,7 @@ export async function GET(req: Request) {
  *  set_paid_until define o vencimento exato (date) ou remove (date vazio = sem vencimento)
  *  suspend        tira do ar
  *  reactivate     volta a liberar (não mexe no vencimento)
+ *  set_password   define uma nova senha (8 a 72 letras) para o dono da barbearia
  *  note           grava uma anotação sua (até 200 letras)
  *  delete         apaga a barbearia para sempre (exige "confirm" = endereço da barbearia).
  *                 "deleteAccounts" também apaga os logins do dono e dos barbeiros (nunca os de administradores).
@@ -136,6 +137,18 @@ export async function POST(req: Request) {
     case "reactivate":
       patch = { status: "active" };
       break;
+    case "set_password": {
+      const password = String(body.password ?? "");
+      if (password.length < 8 || password.length > 72) return fail(400, "A senha precisa ter de 8 a 72 caracteres.");
+      const { data: isAdmin } = await admin.from("platform_admins").select("user_id").eq("user_id", shop.owner_user_id).maybeSingle();
+      if (isAdmin) return fail(403, "Esta conta é de administrador. Troque a senha pela própria tela de administração.");
+      const { error: pwErr } = await admin.auth.admin.updateUserById(shop.owner_user_id, { password });
+      if (pwErr) {
+        console.error("admin set_password:", pwErr);
+        return fail(500, "Não foi possível trocar a senha.");
+      }
+      return NextResponse.json({ ok: true });
+    }
     case "note": {
       const note = String(body.note ?? "").trim().slice(0, 200);
       patch = { admin_note: note || null };

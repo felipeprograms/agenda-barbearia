@@ -6,6 +6,7 @@ import { supabaseBrowser } from "@/lib/supabaseBrowser";
 import { shopState, formatDateBR, type ShopState } from "@/lib/shopStatus";
 import BrandBar from "@/components/BrandBar";
 import AuthForm from "@/components/panel/AuthForm";
+import PasswordForm from "@/components/panel/PasswordForm";
 
 type AdminShop = {
   id: string;
@@ -124,6 +125,15 @@ export default function AdminPage() {
         </button>
       </div>
 
+      <details className="card">
+        <summary>
+          <strong>Alterar a minha senha de administrador</strong>
+        </summary>
+        <div style={{ marginTop: 14 }}>
+          <PasswordForm />
+        </div>
+      </details>
+
       {error && <p className="error" role="alert">{error}</p>}
       {!shops && !error && <p className="muted">Carregando…</p>}
 
@@ -166,6 +176,7 @@ function ShopCard({
   const [deleting, setDeleting] = useState(false);
   const [typed, setTyped] = useState("");
   const [withAccounts, setWithAccounts] = useState(false);
+  const [newPw, setNewPw] = useState("");
   const created = formatDateBR(s.created_at.slice(0, 10));
 
   return (
@@ -250,6 +261,37 @@ function ShopCard({
           Salvar anotação
         </button>
       </div>
+
+      <details>
+        <summary className="muted">Definir uma nova senha para o dono desta barbearia</summary>
+        <div className="row" style={{ marginTop: 10 }}>
+          <input
+            type="text"
+            className="admin-note"
+            minLength={8}
+            maxLength={72}
+            autoComplete="off"
+            placeholder="Nova senha (mínimo 8 caracteres)"
+            value={newPw}
+            onChange={(e) => setNewPw(e.target.value)}
+            aria-label="Nova senha do dono"
+          />
+          <button
+            className="btn btn-small"
+            disabled={busy || newPw.length < 8}
+            onClick={async () => {
+              if (!window.confirm(`Trocar a senha de ${s.owner_email || "o dono"}? A senha antiga deixa de funcionar.`)) return;
+              await act(s.id, "set_password", { password: newPw });
+              setNewPw("");
+            }}
+          >
+            Trocar senha
+          </button>
+        </div>
+        <p className="muted" style={{ margin: "6px 0 0" }}>
+          Combine a senha nova com o dono por um canal seguro (WhatsApp) e peça para ele trocá-la em “Alterar minha senha”.
+        </p>
+      </details>
 
       {!deleting ? (
         <div>

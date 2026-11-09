@@ -7,6 +7,7 @@ import type { Barber, Shop, ShopBasic } from "@/lib/panelUtils";
 import AuthForm from "@/components/panel/AuthForm";
 import Onboarding from "@/components/panel/Onboarding";
 import ShopSection from "@/components/panel/ShopSection";
+import PasswordForm from "@/components/panel/PasswordForm";
 import PlanSection from "@/components/panel/PlanSection";
 import TeamSection from "@/components/panel/TeamSection";
 import ProfileSection from "@/components/panel/ProfileSection";
@@ -70,6 +71,15 @@ export default function PainelPage() {
           Sair
         </button>
       </div>
+
+      <details className="card">
+        <summary>
+          <strong>Alterar minha senha</strong>
+        </summary>
+        <div style={{ marginTop: 14 }}>
+          <PasswordForm />
+        </div>
+      </details>
 
       {!loaded && <p className="muted">Carregando…</p>}
 

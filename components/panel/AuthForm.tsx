@@ -28,6 +28,26 @@ export default function AuthForm() {
     setBusy(false);
   }
 
+  async function forgot() {
+    setError("");
+    setInfo("");
+    if (!email) return setError("Digite o seu e-mail acima e toque em “Esqueci minha senha” de novo.");
+    setBusy(true);
+    const { error: err } = await supabaseBrowser().auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/painel/senha`,
+    });
+    setBusy(false);
+    if (err) {
+      setError(
+        /rate|limit|seconds/i.test(err.message)
+          ? "Muitos pedidos em pouco tempo. Espere alguns minutos e tente de novo."
+          : "Não foi possível enviar o e-mail agora. Tente novamente em instantes.",
+      );
+    } else {
+      setInfo("Se este e-mail tiver conta, enviamos um link para criar uma nova senha. Olhe também o spam.");
+    }
+  }
+
   return (
     <div className="card stack">
       <h1>Painel</h1>
@@ -58,10 +78,15 @@ export default function AuthForm() {
         </div>
         {error && <p className="error">{error}</p>}
         {info && <p className="ok">{info}</p>}
-        <div>
+        <div className="row">
           <button className="btn btn-primary" disabled={busy} type="submit">
             {busy ? "Aguarde…" : mode === "login" ? "Entrar" : "Criar conta"}
           </button>
+          {mode === "login" && (
+            <button className="btn-link" type="button" onClick={forgot} disabled={busy}>
+              Esqueci minha senha
+            </button>
+          )}
         </div>
       </form>
     </div>

@@ -166,3 +166,10 @@ Fundo em degradê (sem quadriculado), menu flutuando sobre a imagem inicial, bar
 - O dono paga em **Painel → Plano e pagamento** (Pix ou cartão). Ao confirmar, o sistema soma os dias ao vencimento e, se a barbearia estava "em análise", libera na hora.
 - O **plano de teste não aparece para o público**: só você, no `/admin`, usa "Liberar teste de N dias" nas barbearias em análise.
 - Precisa de: `supabase/migracao-assinatura.sql` rodada no Supabase e a variável `PLATFORM_MP_ACCESS_TOKEN` (Access Token de produção da SUA conta do Mercado Pago) na Vercel, seguida de Redeploy.
+
+## Senhas
+
+- **Esqueci minha senha:** na tela de login do painel e do /admin. Envia um link por e-mail que abre `/painel/senha`.
+  No Supabase: *Authentication → URL Configuration* precisa ter o endereço do site em **Site URL** e `https://SEU-SITE.vercel.app/**` em **Redirect URLs**.
+- **Alterar minha senha:** dentro do painel (donos e barbeiros) e do /admin (administrador), mínimo 8 caracteres.
+- **Admin troca a senha de um dono:** em `/admin`, no cartão da barbearia, "Definir uma nova senha para o dono". Útil quando o e-mail do Supabase não chega.
