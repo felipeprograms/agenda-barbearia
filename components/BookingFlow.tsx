@@ -106,7 +106,7 @@ export default function BookingFlow({
 
   const barber = barbers.find((b) => b.id === barberId) ?? null;
   const service = barber?.services.find((s) => s.id === serviceId) ?? null;
-  const maxDate = useMemo(() => addDays(today, maxDays), [today, maxDays]);
+  const dates = useMemo(() => Array.from({ length: maxDays + 1 }, (_, i) => addDays(today, i)), [today, maxDays]);
 
   // Mesma conta que o servidor faz: sinal em % do preço, no mínimo R$ 1,00 e no máximo o preço.
   const deposit =
@@ -423,29 +423,20 @@ export default function BookingFlow({
       {barber && service && !time && (
         <div className="step">
           <h2 className="step-title">Escolha o dia e o horário</h2>
-          <div>
-            <label htmlFor="booking-date">Data do agendamento</label>
-            <input
-              id="booking-date"
-              type="date"
-              min={today}
-              max={maxDate}
-              value={date ?? ""}
-              style={{ colorScheme: "dark" }}
-              onChange={(e) => {
-                const v = e.target.value;
-                // Ignora data apagada ou fora do período permitido.
-                setDate(v && v >= today && v <= maxDate ? v : null);
-              }}
-            />
-            {date && (
-              <p className="muted" style={{ marginTop: 6 }}>
-                {dayParts(date).weekday}, {dayParts(date).day} de {dayParts(date).month}
-              </p>
-            )}
+          <div className="days" role="group" aria-label="Dias disponíveis">
+            {dates.map((d) => {
+              const p = dayParts(d);
+              return (
+                <button key={d} className="day" aria-pressed={date === d} onClick={() => setDate(d)}>
+                  <span className="wd">{p.weekday}</span>
+                  <span className="dn">{p.day}</span>
+                  <span className="mo">{p.month}</span>
+                </button>
+              );
+            })}
           </div>
 
-          {!date && <p className="muted">Escolha uma data para ver os horários livres.</p>}
+          {!date && <p className="muted">Escolha um dia para ver os horários livres.</p>}
           {date && slotsError && <p className="error" role="alert">{slotsError}</p>}
           {date && !slotsError && slots === null && <p className="muted">Carregando horários…</p>}
           {date && slots && slots.length === 0 && (
