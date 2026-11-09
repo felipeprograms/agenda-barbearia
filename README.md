@@ -159,3 +159,10 @@ Para o dinheiro cair na conta de cada barbeiro, o dono envia o **link de conexã
 ## Visual da página da barbearia
 
 Fundo em degradê (sem quadriculado), menu flutuando sobre a imagem inicial, barbeiros em fotos redondas ao lado dos serviços, agendamento com cartões que se elevam e seção "Sobre" discreta no fim. A fonte Barlow Condensed e a Anton vêm do Google Fonts (precisam de internet).
+
+## Planos e mensalidade (Mercado Pago)
+
+- Planos públicos: **Mensal R$ 39,90** e **Anual R$ 430,92** (12 × 39,90 = 478,80 com 10% de desconto, equivale a R$ 35,91 por mês). Preços e desconto ficam em `lib/plans.ts`.
+- O dono paga em **Painel → Plano e pagamento** (Pix ou cartão). Ao confirmar, o sistema soma os dias ao vencimento e, se a barbearia estava "em análise", libera na hora.
+- O **plano de teste não aparece para o público**: só você, no `/admin`, usa "Liberar teste de N dias" nas barbearias em análise.
+- Precisa de: `supabase/migracao-assinatura.sql` rodada no Supabase e a variável `PLATFORM_MP_ACCESS_TOKEN` (Access Token de produção da SUA conta do Mercado Pago) na Vercel, seguida de Redeploy.

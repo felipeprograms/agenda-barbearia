@@ -20,8 +20,9 @@ export default function StatusBanner({ status, paidUntil }: { status: string; pa
       <div className="card notice" role="status">
         <h3>Cadastro em análise</h3>
         <p className="muted" style={{ margin: 0 }}>
-          Sua página fica no ar assim que o administrador liberar o acesso. Enquanto isso, você já pode enviar o logo, a
-          capa e preencher as informações.{contact}
+          Sua página fica no ar na hora em que você pagar a mensalidade (veja “Plano e pagamento” abaixo) ou quando o
+          administrador liberar um teste. Enquanto isso, você já pode enviar o logo, a capa e preencher as
+          informações.{contact}
         </p>
       </div>
     );

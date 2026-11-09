@@ -1,6 +1,13 @@
 import { supabaseBrowser } from "./supabaseBrowser";
 
-export type ShopBasic = { id: string; slug: string; name: string; status: string; paid_until: string | null };
+export type ShopBasic = {
+  id: string;
+  slug: string;
+  name: string;
+  status: string;
+  paid_until: string | null;
+  plan?: string | null;
+};
 
 /** Barbearia com os dados do perfil público (capa, endereço, etc.). */
 export type Shop = ShopBasic & {

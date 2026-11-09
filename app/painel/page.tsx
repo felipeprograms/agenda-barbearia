@@ -7,6 +7,7 @@ import type { Barber, Shop, ShopBasic } from "@/lib/panelUtils";
 import AuthForm from "@/components/panel/AuthForm";
 import Onboarding from "@/components/panel/Onboarding";
 import ShopSection from "@/components/panel/ShopSection";
+import PlanSection from "@/components/panel/PlanSection";
 import TeamSection from "@/components/panel/TeamSection";
 import ProfileSection from "@/components/panel/ProfileSection";
 import BarberSection from "@/components/panel/BarberSection";
@@ -35,7 +36,7 @@ export default function PainelPage() {
     const [shopRes, barberRes] = await Promise.all([
       db
         .from("shops")
-        .select("id,slug,name,status,paid_until,tagline,about,address,phone,instagram,hours_text,policies_text,cover_url,logo_url,gallery")
+        .select("id,slug,name,status,paid_until,plan,tagline,about,address,phone,instagram,hours_text,policies_text,cover_url,logo_url,gallery")
         .eq("owner_user_id", uid)
         .maybeSingle(),
       db.from("barbers").select("*").eq("user_id", uid).maybeSingle(),
@@ -79,6 +80,8 @@ export default function PainelPage() {
       {loaded && !ownedShop && barberShop && (
         <StatusBanner status={barberShop.status} paidUntil={barberShop.paid_until} />
       )}
+
+      {loaded && ownedShop && <PlanSection shop={ownedShop} onChange={reload} />}
 
       {loaded && ownedShop && <ShopSection shop={ownedShop} />}
 

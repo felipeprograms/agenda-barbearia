@@ -13,6 +13,7 @@ type AdminShop = {
   slug: string;
   status: string;
   paid_until: string | null;
+  plan: string | null;
   admin_note: string | null;
   created_at: string;
   owner_email: string;
@@ -182,6 +183,7 @@ function ShopCard({
       <p className="muted" style={{ margin: 0 }}>
         Cadastro em {created} · {s.barbers_total} barbeiro(s), {s.barbers_ready} pronto(s) para receber · {s.bookings_30d}{" "}
         agendamento(s) pagos em 30 dias ·{" "}
+        {s.plan ? `plano ${s.plan} · ` : ""}
         {s.paid_until ? `vence em ${formatDateBR(s.paid_until)}` : "sem vencimento"}
       </p>
 
@@ -189,6 +191,11 @@ function ShopCard({
         {state === "pending" && (
           <button className="btn btn-primary btn-small" disabled={busy} onClick={() => act(s.id, "approve", { days: Number(days) })}>
             Liberar por {days} dias
+          </button>
+        )}
+        {state === "pending" && (
+          <button className="btn btn-small" disabled={busy} onClick={() => act(s.id, "approve", { days: Number(days), trial: true })}>
+            Liberar teste de {days} dias
           </button>
         )}
         {state !== "pending" && (

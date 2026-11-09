@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BRAND } from "@/lib/brand";
 import { Icon, type IconName } from "@/components/shop/Icons";
+import PlanCards from "@/components/PlanCards";
 
 const STEPS = [
   { title: "Cadastre a barbearia", text: "Crie sua conta no painel, escolha o endereço do seu link e envie o logo e as fotos. Depois o administrador libera o acesso." },
@@ -28,6 +29,7 @@ export default function Home() {
             <div className="nav-links">
               <a href="#como-funciona">Como funciona</a>
               <a href="#vantagens">Vantagens</a>
+              <a href="#planos">Planos</a>
             </div>
             <Link className="btn btn-small nav-cta" href="/painel">
               Entrar no painel
@@ -87,6 +89,14 @@ export default function Home() {
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      <section className="section" id="planos">
+        <div className="wrap">
+          <h2 className="section-title">Planos</h2>
+          <p className="section-sub">Sem taxa de adesão e sem comissão. O sinal dos clientes cai direto na conta dos barbeiros.</p>
+          <PlanCards />
         </div>
       </section>
 

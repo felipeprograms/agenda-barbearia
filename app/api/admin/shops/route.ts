@@ -21,7 +21,7 @@ export async function GET(req: Request) {
   const [shops, barbers, bookings, users] = await Promise.all([
     admin
       .from("shops")
-      .select("id,name,slug,status,paid_until,admin_note,created_at,approved_at,owner_user_id")
+      .select("id,name,slug,status,paid_until,plan,admin_note,created_at,approved_at,owner_user_id")
       .order("created_at", { ascending: false }),
     admin.from("barbers").select("id,shop_id,active,mp_connected"),
     admin.from("bookings").select("barber_id").eq("status", "confirmed").gte("created_at", since).limit(20000),
@@ -58,6 +58,7 @@ export async function GET(req: Request) {
       slug: s.slug,
       status: s.status,
       paid_until: s.paid_until,
+      plan: s.plan,
       admin_note: s.admin_note,
       created_at: s.created_at,
       owner_email: emailOf.get(s.owner_user_id) ?? "",
@@ -71,7 +72,7 @@ export async function GET(req: Request) {
 
 /**
  * POST { shopId, action, days?, date?, note? }
- *  approve        libera a barbearia e soma "days" (padrão 30) de uso
+ *  approve        libera a barbearia e soma "days" (padrão 30) de uso; com trial = true, marca como plano de teste
  *  add_days       soma "days" ao vencimento (a partir de hoje ou do vencimento atual, o que for mais tarde)
  *  set_paid_until define o vencimento exato (date) ou remove (date vazio = sem vencimento)
  *  suspend        tira do ar
@@ -117,6 +118,7 @@ export async function POST(req: Request) {
     case "approve":
       if (Number.isNaN(days)) return fail(400, "Informe de 1 a 366 dias.");
       patch = { status: "active", approved_at: new Date().toISOString(), paid_until: extend(days) };
+      if (body.trial === true) patch.plan = "teste"; // plano de teste: só você libera
       break;
     case "add_days":
       if (Number.isNaN(days)) return fail(400, "Informe de 1 a 366 dias.");
