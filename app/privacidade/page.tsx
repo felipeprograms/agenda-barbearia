@@ -28,12 +28,12 @@ export default function Privacidade() {
       <h2>5. Seus direitos</h2>
       <p>
         Você pode pedir confirmação de tratamento, acesso, correção, anonimização ou exclusão dos seus dados, e revogar o
-        consentimento, entrando em contato com o responsável pela Plataforma ou com a barbearia onde agendou.
+        consentimento, escrevendo para felipefernand3sz@gmail.com ou falando com a barbearia onde agendou.
       </p>
       <h2>6. Segurança</h2>
       <p>Usamos conexão criptografada (HTTPS), controle de acesso por barbearia e limites contra uso abusivo.</p>
       <h2>7. Contato</h2>
-      <p>Encarregado/contato de privacidade: informe aqui o e-mail do responsável.</p>
+      <p>Encarregado/contato de privacidade: <a href="mailto:felipefernand3sz@gmail.com">felipefernand3sz@gmail.com</a>.</p>
       <p className="muted">
         Modelo-base. Antes de começar a vender, peça a revisão de um advogado e preencha razão social, CNPJ/CPF e e-mail de
         contato.

@@ -19,6 +19,10 @@ export async function POST(req: Request) {
   const action = String(body.action ?? "");
   const email = String(body.email ?? "").trim().toLowerCase();
   const password = String(body.password ?? "");
+  // Token do Captcha (Cloudflare Turnstile). Quem confere é o próprio Supabase, quando o Captcha está ligado lá.
+  const captchaToken = typeof body.captchaToken === "string" && body.captchaToken.length < 3000 ? body.captchaToken : undefined;
+  const captchaMsg = "Não conseguimos confirmar que você não é um robô. Recarregue a página e tente de novo.";
+  const isCaptchaError = (m: string) => /captcha/i.test(m);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 200) return fail(400, "Informe um e-mail válido.");
 
   const sb = createClient(
@@ -31,7 +35,8 @@ export async function POST(req: Request) {
     const limited = (await rateLimit(req, LIMITS.authLoginIp)) ?? (await rateLimit(req, LIMITS.authLoginEmail, email));
     if (limited) return limited;
     if (!password || password.length > 72) return fail(400, "Informe a senha.");
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    const { data, error } = await sb.auth.signInWithPassword({ email, password, options: { captchaToken } });
+    if (error && isCaptchaError(error.message)) return fail(400, captchaMsg);
     if (error || !data.session) return fail(401, "E-mail ou senha incorretos.");
     return NextResponse.json({
       session: { access_token: data.session.access_token, refresh_token: data.session.refresh_token },
@@ -45,8 +50,9 @@ export async function POST(req: Request) {
     const { data, error } = await sb.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${APP_URL}/painel` },
+      options: { emailRedirectTo: `${APP_URL}/painel`, captchaToken },
     });
+    if (error && isCaptchaError(error.message)) return fail(400, captchaMsg);
     if (error) {
       return fail(
         /rate|limit|seconds/i.test(error.message) ? 429 : 400,
@@ -68,7 +74,8 @@ export async function POST(req: Request) {
   if (action === "reset") {
     const limited = (await rateLimit(req, LIMITS.authResetIp)) ?? (await rateLimit(req, LIMITS.authResetEmail, email));
     if (limited) return limited;
-    await sb.auth.resetPasswordForEmail(email, { redirectTo: `${APP_URL}/painel/senha` });
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: `${APP_URL}/painel/senha`, captchaToken });
+    if (error && isCaptchaError(error.message)) return fail(400, captchaMsg);
     // Resposta igual exista ou não a conta, para ninguém descobrir quais e-mails têm cadastro.
     return NextResponse.json({ ok: true });
   }

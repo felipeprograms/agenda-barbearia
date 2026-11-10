@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
+import Captcha, { CAPTCHA_SITE_KEY } from "@/components/Captcha";
 
 export default function AuthForm() {
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -10,6 +11,9 @@ export default function AuthForm() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
+  const [captcha, setCaptcha] = useState("");
+  const [captchaReset, setCaptchaReset] = useState(0);
+  const needCaptcha = Boolean(CAPTCHA_SITE_KEY);
 
   /** Chama /api/auth e devolve { ok, json, wait } (wait = segundos de espera quando bloqueado por limite). */
   async function callAuth(payload: Record<string, unknown>) {
@@ -17,20 +21,24 @@ export default function AuthForm() {
       const res = await fetch("/api/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, captchaToken: captcha || undefined }),
       });
       const json = await res.json().catch(() => ({}));
       return { ok: res.ok, status: res.status, json };
     } catch {
       return { ok: false, status: 0, json: { error: "Sem conexão. Tente novamente." } };
+    } finally {
+      // O token do captcha só vale uma vez: pede outro para a próxima tentativa.
+      if (needCaptcha) setCaptchaReset((n) => n + 1);
     }
   }
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    setBusy(true);
     setError("");
     setInfo("");
+    if (needCaptcha && !captcha) return setError("Marque a caixa “Não sou um robô” e tente de novo.");
+    setBusy(true);
     const r = await callAuth({ action: mode, email, password });
     if (!r.ok) {
       setError(r.json.error ?? "Não foi possível continuar.");
@@ -46,6 +54,7 @@ export default function AuthForm() {
     setError("");
     setInfo("");
     if (!email) return setError("Digite o seu e-mail acima e toque em “Esqueci minha senha” de novo.");
+    if (needCaptcha && !captcha) return setError("Marque a caixa “Não sou um robô” e tente de novo.");
     setBusy(true);
     const r = await callAuth({ action: "reset", email });
     setBusy(false);
@@ -87,6 +96,7 @@ export default function AuthForm() {
             <a href="/privacidade" target="_blank">Política de privacidade</a>.
           </p>
         )}
+        <Captcha onToken={setCaptcha} resetKey={captchaReset} />
         {error && <p className="error">{error}</p>}
         {info && <p className="ok">{info}</p>}
         <div className="row">

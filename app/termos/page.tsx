@@ -46,8 +46,7 @@ export default function Termos() {
       </p>
       <h2>7. Alterações e contato</h2>
       <p>
-        Podemos atualizar estes termos; a data acima indica a versão vigente. Dúvidas: use o contato informado pelo
-        responsável pela Plataforma.
+        Podemos atualizar estes termos; a data acima indica a versão vigente. Dúvidas: escreva para <a href="mailto:felipefernand3sz@gmail.com">felipefernand3sz@gmail.com</a>.
       </p>
       <p className="muted">
         Modelo-base. Antes de começar a vender, peça a revisão de um advogado e complete com razão social, CNPJ/CPF e e-mail

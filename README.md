@@ -189,3 +189,9 @@ Fundo em degradê (sem quadriculado), menu flutuando sobre a imagem inicial, bar
 - **Termos de uso** (`/termos`) e **Política de privacidade** (`/privacidade`): textos-modelo, peça revisão de um advogado e preencha seus dados.
 - **Cancelamento com devolução do sinal**: o cliente cancela em `/pagamento/{id}` até `CANCEL_MIN_HOURS` (2h, em `lib/config.ts`) antes; o barbeiro/dono cancela a qualquer momento pelo painel ("Cancelar e devolver sinal"). A devolução é feita no Mercado Pago com o token do barbeiro; se falhar, nada é alterado.
 - **Limite de armazenamento de fotos**: rode `supabase/migracao-armazenamento.sql` (1 MB por arquivo, 40 arquivos por usuário). O site reduz a foto para até 900 KB antes de enviar.
+
+## Captcha (Cloudflare Turnstile)
+
+1. Em dash.cloudflare.com → Turnstile → Add widget: informe o domínio `agenda-barbearia-beta.vercel.app` (e `localhost` para testes), modo Managed.
+2. Copie a **Site Key** para `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (Vercel, tipo Config) e a **Secret Key** para o Supabase (Authentication → Attack Protection → Enable Captcha → Cloudflare Turnstile).
+3. Faça o Redeploy. Ordem importa: coloque a Site Key na Vercel e publique ANTES de ligar o Captcha no Supabase, senão o login para de funcionar.
