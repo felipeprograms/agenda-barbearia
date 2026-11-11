@@ -7,7 +7,6 @@ import { isShopOpen } from "@/lib/shopStatus";
 
 type Invite = { code: string; used_by: string | null };
 
-/** Área do dono: link da barbearia e convites opcionais. */
 export default function ShopSection({ shop }: { shop: ShopBasic }) {
   const [invites, setInvites] = useState<Invite[]>([]);
   const [error, setError] = useState("");

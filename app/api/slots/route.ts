@@ -8,7 +8,6 @@ export const dynamic = "force-dynamic";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** GET /api/slots?barber=<id>&service=<id>&date=YYYY-MM-DD  ->  { slots: ["09:00", ...] } */
 export async function GET(req: Request) {
   const limited = await rateLimit(req, LIMITS.slots);
   if (limited) return limited;

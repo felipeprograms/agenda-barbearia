@@ -1,6 +1,5 @@
-/** @type {import('next').NextConfig} */
 const securityHeaders = [
-  // Impede que o site seja aberto dentro de outro site (clickjacking).
+
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Content-Security-Policy", value: "frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'" },
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -12,7 +11,11 @@ const securityHeaders = [
 const nextConfig = {
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+
+      { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }] },
+    ];
   },
 };
 

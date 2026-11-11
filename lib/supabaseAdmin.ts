@@ -2,7 +2,6 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 let cached: SupabaseClient | null = null;
 
-/** Cliente com poder total sobre o banco. Usar SOMENTE em código de servidor. */
 export function supabaseAdmin(): SupabaseClient {
   if (cached) return cached;
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

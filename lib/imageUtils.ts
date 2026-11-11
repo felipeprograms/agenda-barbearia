@@ -1,8 +1,3 @@
-/**
- * Prepara uma foto para envio: confere o tipo, reduz para no máximo `maxSide` pixels no lado maior
- * e converte para JPEG (ou PNG, que mantém o fundo transparente, usado no logo). Fotos de celular costumam ter 5 a 10 MB; depois disso ficam com 200 a 500 KB.
- * Use só no navegador.
- */
 export async function prepareImage(
   file: File,
   maxSide = 1600,

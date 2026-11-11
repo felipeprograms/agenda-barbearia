@@ -22,10 +22,6 @@ function Price({ cents, small }: { cents: number; small?: boolean }) {
   );
 }
 
-/**
- * Cartões de plano (mensal e anual). O plano de teste NÃO aparece aqui: só o administrador libera.
- * `action` desenha os botões de cada plano; sem ele, mostra o botão de cadastro.
- */
 export default function PlanCards({ action }: { action?: (plan: PlanId) => ReactNode }) {
   const m = PLANS.mensal;
   const a = PLANS.anual;

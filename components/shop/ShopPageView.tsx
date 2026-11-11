@@ -4,6 +4,7 @@ import { MAX_DAYS_AHEAD } from "@/lib/config";
 import { formatBRL, todayLocal } from "@/lib/time";
 import BookingFlow from "@/components/BookingFlow";
 import { Icon } from "./Icons";
+import InstallButton from "@/components/InstallButton";
 import PhotoStack, { type StackItem } from "./PhotoStack";
 
 function initials(name: string) {
@@ -11,7 +12,6 @@ function initials(name: string) {
   return ((parts[0]?.[0] ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
 }
 
-/** Junta os serviços de todos os barbeiros: mesmo nome vira um item só, com o menor preço. */
 function groupServices(barbers: PublicBarber[]) {
   const map = new Map<string, { name: string; min: number; max: number; duration: number }>();
   for (const b of barbers) {
@@ -29,7 +29,6 @@ function groupServices(barbers: PublicBarber[]) {
   return [...map.values()];
 }
 
-/** Página pública completa da barbearia, no formato de site. */
 export default function ShopPageView({ shop, focusBarber = false }: { shop: PublicShop; focusBarber?: boolean }) {
   const hasBarbers = shop.barbers.length > 0;
   const services = groupServices(shop.barbers);
@@ -40,7 +39,6 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
   const showServices = hasBarbers && services.length > 0;
   const showBarbers = hasBarbers && !focusBarber;
 
-  // As fotos da galeria (até 3) entram na seção "Sobre", no fim da página.
   const aboutPhotos: StackItem[] = shop.gallery.slice(0, 3).map((src) => ({ src }));
   const hasAbout = Boolean(shop.about) || aboutPhotos.length > 0;
   const showTeam = showBarbers || showServices;
@@ -49,7 +47,7 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
 
   return (
     <div className="shop-root">
-      {/* Menu: flutua sobre a imagem de fundo, sem bordas */}
+
       <nav className="nav nav-shop" aria-label="Menu principal">
         <div className="wrap nav-in">
           <a className="nav-brand" href="#topo" aria-label={shop.name}>
@@ -87,7 +85,6 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
         </div>
       </nav>
 
-      {/* Tela inicial: "Agende seu horário" */}
       <header className="hero-agenda" id="topo">
         {shop.cover_url && (
           <div className="hero-bg" style={{ backgroundImage: `url(${JSON.stringify(shop.cover_url)})` }} aria-hidden="true" />
@@ -118,7 +115,6 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
         </div>
       </header>
 
-      {/* Barbeiros (fotos redondas) ao lado dos serviços */}
       {showTeam && (
         <section className="section team" id="equipe">
           <div className={`wrap bs-grid${showBarbers && showServices ? "" : " bs-solo"}`}>
@@ -180,7 +176,6 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
         </section>
       )}
 
-      {/* Agendamento */}
       <section className="section agendar" id="agendar">
         <div className="wrap wrap-narrow">
           <h2 className="section-title">Agende seu horário</h2>
@@ -202,7 +197,6 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
         </div>
       </section>
 
-      {/* Regras */}
       {policies.length > 0 && (
         <section className="section rules" id="regras">
           <div className="wrap">
@@ -219,7 +213,6 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
         </section>
       )}
 
-      {/* Sobre: discreto, no fim da página */}
       {hasAbout && (
         <section className="section about-min" id="sobre">
           <div className={`wrap about-grid${aboutPhotos.length > 0 ? "" : " about-solo"}`}>
@@ -236,7 +229,6 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
         </section>
       )}
 
-      {/* Contato: compacto, com ícones */}
       {hasVisit && (
         <section className="section visit-min" id="visita">
           <div className="wrap">
@@ -292,6 +284,7 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
       <footer className="foot">
         <div className="wrap foot-in">
           <span>{shop.name}</span>
+          <InstallButton label="Instalar app" />
           <span>
             <a href="/termos">Termos</a> · <a href="/privacidade">Privacidade</a> · <a href="#topo">Voltar ao topo</a>
           </span>

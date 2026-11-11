@@ -4,15 +4,13 @@ import { APP_URL } from "./config";
 
 const MP = "https://api.mercadopago.com";
 const STATE_MAX_AGE_MS = 20 * 60 * 1000;
-const REFRESH_MARGIN_MS = 7 * 24 * 3600 * 1000; // renova quando faltar menos de 7 dias
+const REFRESH_MARGIN_MS = 7 * 24 * 3600 * 1000;
 
 export const OAUTH_REDIRECT_URI = `${APP_URL}/api/mp/callback`;
 
 export function oauthConfigured(): boolean {
   return Boolean(process.env.MP_CLIENT_ID && process.env.MP_CLIENT_SECRET && APP_URL.startsWith("https://"));
 }
-
-/* ---- "state": identifica o barbeiro na volta do Mercado Pago, assinado para não poder ser forjado ---- */
 
 function sign(payload: string): string {
   return createHmac("sha256", process.env.MP_CLIENT_SECRET ?? "").update(payload).digest("base64url");
@@ -23,7 +21,6 @@ export function makeState(barberId: string): string {
   return `${payload}.${sign(payload)}`;
 }
 
-/** Devolve o id do barbeiro se o state for autêntico e recente; senão null. */
 export function readState(state: string): string | null {
   const parts = state.split(".");
   if (parts.length !== 3) return null;
@@ -47,8 +44,6 @@ export function authorizationUrl(state: string): string {
   });
   return `https://auth.mercadopago.com/authorization?${q.toString()}`;
 }
-
-/* ---- troca de código e renovação ---- */
 
 type TokenResponse = {
   access_token: string;
@@ -87,7 +82,6 @@ function expiresAtOf(t: TokenResponse): string {
   return new Date(Date.now() + seconds * 1000).toISOString();
 }
 
-/** Guarda a autorização do barbeiro (servidor apenas) e marca o Mercado Pago como conectado. */
 export async function saveOAuthTokens(admin: SupabaseClient, barberId: string, t: TokenResponse): Promise<void> {
   const { error } = await admin.from("barber_secrets").upsert({
     barber_id: barberId,
@@ -101,10 +95,6 @@ export async function saveOAuthTokens(admin: SupabaseClient, barberId: string, t
   await admin.from("barbers").update({ mp_connected: true }).eq("id", barberId);
 }
 
-/**
- * Token de cobrança do barbeiro. Se veio do botão "Conectar" e está perto de vencer, renova sozinho.
- * Tokens colados à mão (source = manual) são usados como estão.
- */
 export async function getBarberAccessToken(admin: SupabaseClient, barberId: string): Promise<string | null> {
   const { data } = await admin
     .from("barber_secrets")
@@ -123,6 +113,6 @@ export async function getBarberAccessToken(admin: SupabaseClient, barberId: stri
     return fresh.access_token;
   } catch (e) {
     console.error("renovar token MP:", e);
-    return data.mp_access_token as string; // tenta com o atual; se já venceu, o Mercado Pago recusa e o barbeiro reconecta
+    return data.mp_access_token as string;
   }
 }

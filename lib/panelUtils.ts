@@ -9,7 +9,6 @@ export type ShopBasic = {
   plan?: string | null;
 };
 
-/** Barbearia com os dados do perfil público (capa, endereço, etc.). */
 export type Shop = ShopBasic & {
   tagline: string | null;
   about: string | null;
@@ -40,7 +39,6 @@ export type Barber = {
 
 export const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
-/** "Barbearia do Zé" -> "barbearia-do-ze" */
 export function slugify(s: string): string {
   return s
     .normalize("NFD")
@@ -51,7 +49,6 @@ export function slugify(s: string): string {
     .slice(0, 40);
 }
 
-/** "35,50" ou "35.50" -> 3550 (centavos). Retorna NaN se não for número. */
 export function reaisToCents(v: string): number {
   const t = v.trim().replace(/[^\d,.]/g, "");
   const normalized = t.includes(",") ? t.replace(/\./g, "").replace(",", ".") : t;
@@ -59,7 +56,6 @@ export function reaisToCents(v: string): number {
   return Number.isFinite(n) && normalized !== "" ? Math.round(n * 100) : NaN;
 }
 
-/** Chama uma rota do servidor enviando o login do usuário. */
 export async function postAuthed(
   path: string,
   body: unknown,

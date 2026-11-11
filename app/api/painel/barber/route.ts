@@ -12,11 +12,6 @@ function fail(status: number, error: string) {
   return NextResponse.json({ error }, { status });
 }
 
-/**
- * POST { name, slug, code? } — cria o cadastro de barbeiro do usuário logado.
- *  - com "code": entra na barbearia que gerou o convite;
- *  - sem "code": o dono da barbearia cria o próprio cadastro de barbeiro ("eu também atendo").
- */
 export async function POST(req: Request) {
   const limited = await rateLimit(req, LIMITS.painelWrite);
   if (limited) return limited;
@@ -47,7 +42,7 @@ export async function POST(req: Request) {
   let invitedByCode = false;
 
   if (code) {
-    // Marca o convite como usado de forma atômica: só uma pessoa consegue usar cada código.
+
     const { data: invite } = await admin
       .from("invites")
       .update({ used_by: user.id })

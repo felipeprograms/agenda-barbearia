@@ -3,7 +3,6 @@
 import { useState, type FormEvent } from "react";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
 
-/** Define uma senha nova para a conta que está logada (também usada depois do link "esqueci minha senha"). */
 export default function PasswordForm({ onDone }: { onDone?: () => void }) {
   const [pw, setPw] = useState("");
   const [pw2, setPw2] = useState("");

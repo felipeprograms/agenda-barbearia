@@ -11,11 +11,11 @@ export default function AuthForm() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
+  const [accepted, setAccepted] = useState(false);
   const [captcha, setCaptcha] = useState("");
   const [captchaReset, setCaptchaReset] = useState(0);
   const needCaptcha = Boolean(CAPTCHA_SITE_KEY);
 
-  /** Chama /api/auth e devolve { ok, json, wait } (wait = segundos de espera quando bloqueado por limite). */
   async function callAuth(payload: Record<string, unknown>) {
     try {
       const res = await fetch("/api/auth", {
@@ -28,7 +28,7 @@ export default function AuthForm() {
     } catch {
       return { ok: false, status: 0, json: { error: "Sem conexão. Tente novamente." } };
     } finally {
-      // O token do captcha só vale uma vez: pede outro para a próxima tentativa.
+
       if (needCaptcha) setCaptchaReset((n) => n + 1);
     }
   }
@@ -37,9 +37,10 @@ export default function AuthForm() {
     e.preventDefault();
     setError("");
     setInfo("");
+    if (mode === "signup" && !accepted) return setError("Marque que você leu e aceita os Termos e a Política de privacidade.");
     if (needCaptcha && !captcha) return setError("Marque a caixa “Não sou um robô” e tente de novo.");
     setBusy(true);
-    const r = await callAuth({ action: mode, email, password });
+    const r = await callAuth({ action: mode, email, password, acceptTerms: mode === "signup" ? accepted : undefined });
     if (!r.ok) {
       setError(r.json.error ?? "Não foi possível continuar.");
     } else if (r.json.session) {
@@ -91,10 +92,13 @@ export default function AuthForm() {
           />
         </div>
         {mode === "signup" && (
-          <p className="muted">
-            Ao criar a conta, você concorda com os <a href="/termos" target="_blank">Termos de uso</a> e a{" "}
-            <a href="/privacidade" target="_blank">Política de privacidade</a>.
-          </p>
+          <label className="row" style={{ alignItems: "flex-start", gap: 8, fontWeight: 400 }}>
+            <input type="checkbox" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} style={{ width: "auto", marginTop: 4 }} />
+            <span>
+              Li e aceito os <a href="/termos" target="_blank" rel="noreferrer">Termos de uso</a> e a{" "}
+              <a href="/privacidade" target="_blank" rel="noreferrer">Política de privacidade</a>.
+            </span>
+          </label>
         )}
         <Captcha onToken={setCaptcha} resetKey={captchaReset} />
         {error && <p className="error">{error}</p>}

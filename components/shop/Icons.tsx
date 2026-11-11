@@ -1,4 +1,3 @@
-/** Ícones de linha usados na página pública. Todos usam a cor do texto ao redor (currentColor). */
 const base = {
   viewBox: "0 0 24 24",
   fill: "none",

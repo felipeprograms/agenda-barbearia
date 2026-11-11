@@ -18,14 +18,13 @@ function mark(key: string, value: string) {
   try {
     localStorage.setItem(key, value);
   } catch {
-    /* sem problema */
+
   }
 }
 function cleanInstagram(v: string): string {
   return v.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/^@/, "").replace(/\/.*$/, "");
 }
 
-/** Cartão com o botão do assistente da barbearia (abre sozinho na primeira vez). */
 export function ShopWizardLauncher({ shop, onChange }: { shop: Shop; onChange: () => void }) {
   const key = `wz-shop-${shop.id}`;
   const empty = !shop.tagline && !shop.address && !shop.phone && !shop.logo_url;
@@ -223,7 +222,6 @@ function ShopWizard({ shop, onChange, onClose }: { shop: Shop; onChange: () => v
   return <Wizard title="Barbearia" steps={steps} onClose={onClose} />;
 }
 
-/** Cartão com o botão do assistente do barbeiro (abre sozinho na primeira vez, se ainda falta conectar o pagamento). */
 export function BarberWizardLauncher({ barber, shop, onChange }: { barber: Barber; shop: ShopBasic | null; onChange: () => void }) {
   const key = `wz-barber-${barber.id}`;
   const [open, setOpen] = useState(false);

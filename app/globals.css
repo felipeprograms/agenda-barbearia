@@ -1,7 +1,4 @@
-/* ============================================================
-   Tema: barbearia em preto e ouro, com foto de capa.
-   Cores e fontes ficam nas variáveis abaixo: mude aqui para mudar o site todo.
-   ============================================================ */
+
 
 :root {
   --preto: #0b0b0b;
@@ -45,7 +42,6 @@ body {
   min-height: 100vh;
 }
 
-/* Fundo: sua foto (public/fundo.jpg) por cima do fundo padrão, escurecida para o texto ficar legível */
 body::before {
   content: "";
   position: fixed;
@@ -57,7 +53,6 @@ body::before {
     url("/fundo-padrao.svg") center / cover no-repeat;
 }
 
-/* ---------- Faixa de poste de barbearia ---------- */
 .pole {
   height: 8px;
   background: repeating-linear-gradient(
@@ -78,7 +73,6 @@ body::before {
   .pole { animation: none; }
 }
 
-/* ---------- Estrutura ---------- */
 .container { max-width: 600px; margin: 0 auto; padding: 0 16px 72px; }
 
 h1, h2, h3 { margin: 0; font-weight: 400; }
@@ -98,14 +92,10 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
-/* ---------- Topo das páginas ---------- */
 .hero { padding: 30px 0 4px; }
 .hero p { color: var(--text-muted); max-width: 38ch; margin: 12px 0 0; font-size: 1.02rem; }
 .hero .rule { width: 56px; height: 3px; background: var(--ouro); margin-top: 18px; }
 
-
-
-/* ---------- Cartão de agendamento (comanda) e cartões do painel ---------- */
 .sheet,
 .card {
   background: var(--grafite);
@@ -116,7 +106,6 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .sheet { padding: 22px 20px 26px; border-top: 3px solid var(--ouro); }
 .card { padding: 20px; }
 
-/* Resumo do agendamento, com pontilhado */
 .ledger { list-style: none; margin: 0 0 6px; padding: 0; }
 .ledger-row {
   display: flex;
@@ -148,7 +137,6 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .step { margin-top: 22px; padding-top: 20px; border-top: 2px dashed var(--rule); }
 .step-title { margin-bottom: 12px; }
 
-/* ---------- Escolhas ---------- */
 .menu { display: flex; flex-direction: column; }
 
 .pick,
@@ -194,7 +182,6 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .menu-item .meta { color: var(--text-muted); font-size: 0.88rem; display: block; }
 .menu-item .price { font-family: var(--display); font-size: 1.3rem; white-space: nowrap; color: var(--ouro-2); }
 
-/* Dias: faixa que rola para o lado */
 .days {
   display: flex;
   gap: 8px;
@@ -239,7 +226,6 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 }
 .time:hover { background: var(--ouro); border-color: var(--ouro); color: #121212; }
 
-/* Forma de pagamento */
 .pay { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .pay-opt {
   text-align: left;
@@ -255,7 +241,6 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .pay-opt span { display: block; font-size: 0.82rem; color: var(--text-muted); line-height: 1.3; margin-top: 2px; }
 .pay-opt[aria-checked="true"] { border-color: var(--ouro); box-shadow: inset 0 0 0 1.5px var(--ouro); background: rgba(240, 180, 41, 0.1); }
 
-/* ---------- Botões ---------- */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -281,7 +266,6 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .btn-link { background: none; border: 0; padding: 0; color: var(--link); font: inherit; text-decoration: underline; cursor: pointer; }
 .file-btn { cursor: pointer; }
 
-/* ---------- Formulários ---------- */
 label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
 input, select, textarea {
   width: 100%;
@@ -292,7 +276,7 @@ input, select, textarea {
   border-radius: 10px;
   padding: 10px 12px;
   font: inherit;
-  font-size: 16px; /* 16px evita o zoom automático no iPhone */
+  font-size: 16px;
 }
 textarea { resize: vertical; line-height: 1.4; }
 input[type="time"] { padding-right: 8px; }
@@ -324,7 +308,6 @@ input::placeholder, textarea::placeholder { color: #77736b; }
 .tabs .btn { min-height: 40px; }
 .tabs .btn.on { background: var(--ouro); color: #121212; border-color: var(--ouro); }
 
-/* ---------- Fotos no painel ---------- */
 .thumb-cover { display: block; width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--rule); }
 .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
 .thumb { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; border: 1px solid var(--rule); }
@@ -334,14 +317,12 @@ input::placeholder, textarea::placeholder { color: #77736b; }
   border: 0; background: rgba(0, 0, 0, 0.75); color: #fff; font-size: 1.1rem; line-height: 1; cursor: pointer;
 }
 
-/* ---------- Pagamento e confirmação ---------- */
 .qr { display: block; margin: 12px auto; width: 240px; max-width: 100%; border-radius: 10px; background: #fff; padding: 8px; }
 .amount-big { font-family: var(--display); font-size: 2.3rem; line-height: 1.1; color: var(--ouro-2); }
 .timer { font-family: var(--display); font-size: 1.5rem; font-variant-numeric: tabular-nums; color: var(--ouro-2); }
 .seal { width: 56px; height: 56px; border-radius: 50%; background: var(--ouro); color: #121212; display: grid; place-items: center; }
 .seal svg { width: 30px; height: 30px; }
 
-/* ---------- Informações da barbearia (abaixo do agendamento) ---------- */
 .info { display: flex; flex-direction: column; }
 .info-block { padding: 22px 0; border-bottom: 1px solid var(--rule); }
 .info-block:first-child { padding-top: 6px; }
@@ -354,10 +335,6 @@ input::placeholder, textarea::placeholder { color: #77736b; }
 .gallery a:hover img { transform: scale(1.05); }
 @media (prefers-reduced-motion: reduce) { .gallery img { transition: none; } }
 
-
-/* ============================================================
-   Página pública no formato de site (celular e computador)
-   ============================================================ */
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
@@ -367,7 +344,6 @@ html { scroll-behavior: smooth; }
 .btn-dark:hover { background: #000; }
 #topo, #servicos, #barbeiros, #agendar, #sobre, #visita, #regras { scroll-margin-top: 72px; }
 
-/* Menu fixo */
 .nav { position: sticky; top: 0; z-index: 20; background: rgba(11, 11, 11, 0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--rule); }
 .nav-in { display: flex; align-items: center; gap: 24px; min-height: 64px; }
 .nav-brand { display: flex; align-items: center; text-decoration: none; color: var(--ouro-2); min-width: 0; }
@@ -382,7 +358,6 @@ html { scroll-behavior: smooth; }
   .nav-links { display: none; }
 }
 
-/* Capa */
 .hero-full { position: relative; display: flex; align-items: center; justify-content: center; text-align: center; min-height: 560px; padding: 72px 20px; background: var(--grafite) url("/hero-home.svg") center / cover no-repeat; overflow: hidden; }
 .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center; filter: grayscale(1) contrast(1.05); }
 .hero-full::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(11,11,11,0.55), rgba(11,11,11,0.8)); }
@@ -396,14 +371,12 @@ html { scroll-behavior: smooth; }
 .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
 @media (max-width: 760px) { .hero-full { min-height: 460px; padding: 56px 20px; } }
 
-/* Seções */
 .section { padding: 72px 0; }
 .section.alt { background: var(--grafite); border-block: 1px solid var(--rule); }
 .section-title { font-size: clamp(1.7rem, 5vw, 2.3rem); color: var(--ouro-2); text-align: center; margin-bottom: 8px; }
 .section-sub { text-align: center; color: var(--text-muted); max-width: 52ch; margin: 0 auto 36px; }
 @media (max-width: 760px) { .section { padding: 52px 0; } }
 
-/* Serviços */
 .svc-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
 .svc { border: 1.5px solid var(--ouro); border-radius: 6px; padding: 26px 18px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .svc-icon { width: 34px; height: 34px; color: var(--ouro); margin-bottom: 6px; }
@@ -412,7 +385,6 @@ html { scroll-behavior: smooth; }
 .svc-price { margin-top: 10px; font-family: var(--display); font-size: 1.5rem; color: var(--ouro-2); display: flex; flex-direction: column; line-height: 1.1; }
 .svc-price small { font-family: var(--body); font-size: 0.75rem; color: var(--text-muted); }
 
-/* Barbeiros */
 .barber-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 20px; }
 .barber-card { display: flex; flex-direction: column; align-items: center; gap: 12px; text-decoration: none; color: var(--text); }
 .barber-photo { width: 100%; aspect-ratio: 4 / 5; border-radius: 6px; overflow: hidden; background: var(--grafite-2); border: 1px solid var(--rule); display: grid; place-items: center; }
@@ -422,20 +394,17 @@ html { scroll-behavior: smooth; }
 .barber-name { font-family: var(--display); font-size: 1.2rem; }
 @media (max-width: 520px) { .barber-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; } }
 
-/* Faixa dourada */
 .band { background: var(--ouro); color: #151515; }
 .band-in { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 36px; flex-wrap: wrap; }
 .band h2 { color: #151515; margin: 0 0 4px; font-size: clamp(1.3rem, 4vw, 1.8rem); }
 .band p { margin: 0; font-weight: 500; }
 @media (max-width: 760px) { .band-in { flex-direction: column; text-align: center; } }
 
-/* Sobre */
 .about-text { max-width: 62ch; margin: 0 auto 32px; text-align: center; color: #d8d3c8; font-size: 1.05rem; }
 .gallery-wide { grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .gallery-wide a { border-radius: 6px; }
 @media (max-width: 760px) { .gallery-wide { grid-template-columns: repeat(2, 1fr); } }
 
-/* Horário, endereço e contato */
 .visit { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 36px; margin-top: 36px; }
 .visit-item { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; }
 .visit-item h3 { font-family: var(--display); font-weight: 400; font-size: 1.2rem; margin: 6px 0 0; }
@@ -444,22 +413,18 @@ html { scroll-behavior: smooth; }
 .ring { width: 96px; height: 96px; border-radius: 50%; border: 2px solid var(--ouro); display: grid; place-items: center; color: var(--ouro); box-shadow: 0 0 0 6px rgba(240, 180, 41, 0.1); }
 .ring svg { width: 40px; height: 40px; }
 
-/* Regras */
 .policies { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; }
 .policies li { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
 .policies p { margin: 0; color: #d8d3c8; }
 .policy-icon { width: 36px; height: 36px; color: var(--ouro); }
 
-/* Rodapé */
 .foot { border-top: 1px solid var(--rule); padding: 24px 0 32px; color: var(--text-muted); font-size: 0.9rem; }
 .foot-in { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .foot a { color: var(--link); }
 
-/* Logo no painel */
 .logo-preview { background: #0b0b0b; border: 1px solid var(--rule); border-radius: 10px; padding: 16px; display: grid; place-items: center; margin-bottom: 10px; }
 .logo-preview img { max-height: 90px; max-width: 100%; object-fit: contain; }
 
-/* Barbeiros dentro do agendamento */
 .masters { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
 .master { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 10px; background: transparent; color: var(--text); border: 1.5px solid var(--rule); border-radius: 8px; cursor: pointer; font: inherit; }
 .master:hover, .master:focus-visible { border-color: var(--ouro); }
@@ -468,7 +433,6 @@ html { scroll-behavior: smooth; }
 .master-initials { font-family: var(--display); font-size: 2.2rem; color: var(--ouro); }
 .master-name { font-weight: 700; }
 
-/* Administração e avisos de situação da barbearia */
 .admin-title { font-size: clamp(1.6rem, 6vw, 2.2rem); }
 .admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
 .admin-stats div { border: 1px solid var(--rule); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; background: var(--grafite); }
@@ -481,9 +445,6 @@ html { scroll-behavior: smooth; }
 .notice { border-color: var(--ouro); background: rgba(240, 180, 41, 0.08); }
 .notice h3 { color: var(--ouro-2); }
 
-/* ============================================================
-   Página inicial do sistema e barra com o nome do sistema
-   ============================================================ */
 .brandbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 0 6px; }
 .brand { font-family: var(--display); font-size: 1.35rem; color: var(--ouro-2); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; }
 .brand svg { width: 22px; height: 22px; color: var(--ouro); }
@@ -512,14 +473,8 @@ html { scroll-behavior: smooth; }
 .check { display: flex; gap: 8px; align-items: flex-start; font-weight: 400; color: var(--text-muted); font-size: 0.92rem; }
 .check input { margin-top: 3px; flex: none; }
 
-/* ============================================================
-   Página da barbearia: degradê geral, menu flutuante, tela inicial,
-   barbeiros redondos + serviços, agendamento, sobre e contato
-   ============================================================ */
-
 :root { --serio: "Barlow Condensed", "Arial Narrow", "Hanken Grotesk", sans-serif; }
 
-/* Degradê contínuo atrás de toda a página (nada de quadriculado ou listras) */
 .shop-root {
   position: relative;
   background:
@@ -542,7 +497,6 @@ html { scroll-behavior: smooth; }
 }
 .shop-root .section-sub { text-align: left; margin: 0 0 28px; }
 
-/* Menu: transparente, flutuando sobre a imagem, sem bordas */
 .nav.nav-shop { position: absolute; top: 0; left: 0; right: 0; z-index: 30; background: transparent; border: 0; backdrop-filter: none; }
 .nav-shop .nav-in { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; min-height: 76px; }
 .nav-shop .nav-links { margin: 0; justify-content: center; gap: 34px; }
@@ -563,7 +517,6 @@ html { scroll-behavior: smooth; }
   .nav-shop .nav-cta { display: inline-flex; }
 }
 
-/* Tela inicial: a imagem de fundo cobre o começo de tudo, atrás do menu */
 .hero-agenda { position: relative; display: flex; align-items: center; justify-content: center; text-align: center; min-height: max(100svh, 620px); padding: 96px 20px 72px; background: #0b0b0b url("/hero-home.svg") center / cover no-repeat; overflow: hidden; }
 .hero-agenda .hero-bg { position: absolute; inset: -30px; background-size: cover; background-position: center; filter: blur(7px) brightness(0.62) saturate(0.85); }
 .hero-agenda::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(11, 11, 11, 0.55), transparent 22%, transparent 68%, #0b0b0b 100%), radial-gradient(ellipse at center, rgba(11, 11, 11, 0.05), rgba(11, 11, 11, 0.7)); }
@@ -589,7 +542,6 @@ a.btn-marcar, a.btn-marcar:visited { color: #151515; }
   .agenda-logo { max-width: 340px; max-height: 170px; }
 }
 
-/* Barbeiros (redondos) e serviços lado a lado */
 .bs-grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(32px, 6vw, 88px); align-items: start; }
 .bs-solo { grid-template-columns: 1fr; max-width: 760px; }
 .bs-sub { color: var(--text-muted); margin: 0 0 8px; }
@@ -624,7 +576,6 @@ a.btn-marcar, a.btn-marcar:visited { color: #151515; }
   .bs-col .section-title, .bs-sub { text-align: center !important; }
 }
 
-/* Agendamento: cartão de vidro, escolhas que se elevam */
 .agendar .sheet { background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)); backdrop-filter: blur(10px); border: 1px solid rgba(240, 180, 41, 0.28); border-top: 1px solid rgba(240, 180, 41, 0.6); border-radius: 24px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55); padding: clamp(20px, 4vw, 34px); }
 .agendar .step-title { font-family: var(--serio); font-weight: 700; font-size: 1.6rem; text-transform: uppercase; letter-spacing: 0.07em; }
 .agendar .menu { display: grid; gap: 12px; }
@@ -644,12 +595,10 @@ a.btn-marcar, a.btn-marcar:visited { color: #151515; }
 .agendar .time { border-radius: 10px; transition: transform 0.2s, box-shadow 0.2s, background 0.2s; }
 .agendar .time:hover { transform: translateY(-4px); box-shadow: 0 10px 18px rgba(0, 0, 0, 0.45); }
 
-/* Regras: lista simples */
 .rules .policies { margin-top: 18px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px 36px; }
 .rules .policies li { flex-direction: row; align-items: flex-start; text-align: left; gap: 12px; }
 .rules .policy-icon { flex: none; width: 20px; height: 20px; color: var(--ouro); margin-top: 2px; }
 
-/* Sobre: discreto, no fim */
 .about-min { padding-block: clamp(40px, 6vw, 72px) !important; }
 .about-grid { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: clamp(24px, 5vw, 64px); align-items: center; max-width: 860px; }
 .about-solo { grid-template-columns: 1fr; }
@@ -658,7 +607,6 @@ a.btn-marcar, a.btn-marcar:visited { color: #151515; }
 .about-photos .pstack { max-width: 260px; }
 @media (max-width: 760px) { .about-grid { grid-template-columns: 1fr; } .about-photos { order: -1; } }
 
-/* Contato: compacto, um ícone por campo */
 .visit-min { padding-block: clamp(36px, 5vw, 64px) !important; }
 .visit-min .section-title { font-size: clamp(1.4rem, 4vw, 1.8rem) !important; }
 .vm-list { list-style: none; margin: 14px 0 0; padding: 18px 0 0; border-top: 1px solid rgba(255, 255, 255, 0.1); display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 20px 28px; }
@@ -669,7 +617,6 @@ a.btn-marcar, a.btn-marcar:visited { color: #151515; }
 .vm-list a:hover { color: var(--ouro-2); }
 .vm-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); }
 
-/* Fotos em camadas (usadas em "Sobre") */
 .pstack { position: relative; width: 100%; max-width: 480px; aspect-ratio: 450 / 345; margin-inline: auto; }
 .pstack-item { position: absolute; display: block; overflow: hidden; border-radius: 3px; background: var(--grafite-2); outline: 1px solid rgba(240, 180, 41, 0.3); box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 3px 8px rgba(0, 0, 0, 0.45); text-decoration: none; color: var(--text); }
 .pstack-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -686,7 +633,6 @@ a.btn-marcar, a.btn-marcar:visited { color: #151515; }
   .bcircle, .pl-row, .agendar .menu-item, .agendar .master, .agendar .day, .agendar .time, .btn-marcar { transition: none; }
 }
 
-/* ---------- Planos ---------- */
 .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 24px; max-width: 820px; margin: 0 auto; }
 .plan { position: relative; min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 34px 28px 28px; border-radius: 24px; background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(255, 255, 255, 0.14); overflow: hidden; }
 .plan-featured { background: linear-gradient(160deg, #1d1810, #0e0d0b); border-color: var(--ouro); box-shadow: 0 24px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(240, 180, 41, 0.12); }
@@ -720,7 +666,6 @@ a.plan-cta.plan-cta-outline, .plan-cta.plan-cta-outline { color: #fff; }
 .pay-method span { color: var(--text-muted); font-size: 0.88rem; }
 .pay-method .pay-method-price { margin-top: 8px; color: var(--ouro-2); font-weight: 800; font-size: 1.4rem; }
 
-/* Calendário do mês (agendamento) */
 .cal-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .cal-head select { flex: 1; min-width: 0; }
 .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-bottom: 14px; }
@@ -730,7 +675,6 @@ a.plan-cta.plan-cta-outline, .plan-cta.plan-cta-outline { color: #fff; }
 .cal-day:disabled { opacity: 0.28; cursor: not-allowed; }
 .cal-day[aria-pressed="true"] { background: var(--ouro); border-color: var(--ouro); color: #121212; }
 
-/* ---------- Assistente em popup ---------- */
 .wz-overlay { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); }
 .wz { width: min(560px, 100%); max-height: min(88svh, 720px); display: flex; flex-direction: column; border-radius: 22px; background: linear-gradient(160deg, #1d1810, #0e0d0b); border: 1px solid rgba(240, 180, 41, 0.45); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7); overflow: hidden; }
 .wz-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px 10px; }

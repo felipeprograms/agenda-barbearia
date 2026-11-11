@@ -15,10 +15,6 @@ declare global {
 export const CAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 const SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
-/**
- * Caixa "não sou um robô" (Cloudflare Turnstile). Só aparece se NEXT_PUBLIC_TURNSTILE_SITE_KEY existir.
- * O token vale para uma única tentativa: depois de cada envio, mude "resetKey" para gerar outro.
- */
 export default function Captcha({ onToken, resetKey }: { onToken: (token: string) => void; resetKey: number }) {
   const box = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | undefined>(undefined);

@@ -2,15 +2,9 @@ import { supabaseAdmin } from "./supabaseAdmin";
 import { getBarberAccessToken } from "./mpOAuth";
 import { findApprovedPayment, getPayment } from "./mercadopago";
 import { sendTelegram } from "./telegram";
+import { sendPushForBarber } from "./push";
 import { formatBRL, formatDateTimeBR } from "./time";
 
-/**
- * Confere no Mercado Pago se o Pix do agendamento foi pago e, se foi, confirma o horário
- * e avisa o barbeiro. Pode ser chamada pelo webhook e pela tela do cliente ao mesmo tempo:
- * o banco garante que só uma das chamadas confirma (e notifica).
- *
- * Retorna o status final: pending | confirmed | expired | conflict | cancelled | not_found
- */
 export async function settleBooking(bookingId: string): Promise<string> {
   const admin = supabaseAdmin();
 
@@ -25,10 +19,10 @@ export async function settleBooking(bookingId: string): Promise<string> {
   let paymentId: string | null = b.mp_payment_id;
   try {
     if (paymentId) {
-      // Pix: já sabemos qual é o pagamento.
+
       payment = await getPayment(mpToken, paymentId);
     } else {
-      // Cartão: o pagamento só existe depois que o cliente paga; procuramos pelo id do agendamento.
+
       const found = await findApprovedPayment(mpToken, b.id);
       if (!found) return b.status;
       payment = found;
@@ -79,6 +73,22 @@ export async function settleBooking(bookingId: string): Promise<string> {
             ].join("\n");
       await sendTelegram(barber.telegram_chat_id, text);
     }
+
+    await sendPushForBarber(
+      admin,
+      b.barber_id,
+      result === "confirmed"
+        ? {
+            title: "Novo agendamento ✂️",
+            body: `${b.customer_name} · ${b.service_name} · ${formatDateTimeBR(b.starts_at)}`,
+            tag: `bk-${b.id}`,
+          }
+        : {
+            title: "Pagamento recebido, horário ocupado ⚠️",
+            body: `${b.customer_name} pagou ${formatBRL(b.amount_cents)} mas o horário já estava ocupado. Devolva o valor.`,
+            tag: `bk-${b.id}`,
+          },
+    );
   }
 
   if (result === "confirmed" || result === "already") return "confirmed";

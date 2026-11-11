@@ -23,7 +23,6 @@ function Sheet({ children }: { children: ReactNode }) {
   );
 }
 
-/** Página para onde o cliente volta depois de pagar no Mercado Pago (cartão). */
 export default function PagamentoPage() {
   const { id } = useParams<{ id: string }>();
   const [info, setInfo] = useState<Info | null>(null);
@@ -60,7 +59,7 @@ export default function PagamentoPage() {
         const json = (await res.json()) as Info;
         if (!stop) setInfo(json);
       } catch {
-        /* tenta de novo no próximo ciclo */
+
       }
     }
     void check();

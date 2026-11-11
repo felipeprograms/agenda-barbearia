@@ -26,7 +26,6 @@ async function loadBarber(token: string): Promise<BarberInfo | null> {
   return (data as BarberInfo | null) ?? null;
 }
 
-/** Página privada (link secreto) onde o barbeiro, sem criar conta, liga o Mercado Pago e o Telegram. */
 export default async function ConectarPage({
   params,
   searchParams,

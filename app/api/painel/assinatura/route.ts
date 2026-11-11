@@ -13,10 +13,6 @@ function fail(status: number, error: string) {
   return NextResponse.json({ error }, { status });
 }
 
-/**
- * POST { plan: "mensal" | "anual", method: "pix" | "card" } — o dono paga a mensalidade da própria barbearia.
- * Pix: devolve { id, qrCode, qrCodeBase64 }. Cartão: devolve { id, url } (página segura do Mercado Pago).
- */
 export async function POST(req: Request) {
   const limited = await rateLimit(req, LIMITS.painelPay);
   if (limited) return limited;

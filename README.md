@@ -195,3 +195,19 @@ Fundo em degradê (sem quadriculado), menu flutuando sobre a imagem inicial, bar
 1. Em dash.cloudflare.com → Turnstile → Add widget: informe o domínio `agenda-barbearia-beta.vercel.app` (e `localhost` para testes), modo Managed.
 2. Copie a **Site Key** para `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (Vercel, tipo Config) e a **Secret Key** para o Supabase (Authentication → Attack Protection → Enable Captcha → Cloudflare Turnstile).
 3. Faça o Redeploy. Ordem importa: coloque a Site Key na Vercel e publique ANTES de ligar o Captcha no Supabase, senão o login para de funcionar.
+
+## App instalável (PWA)
+
+- `app/manifest.ts`: app do painel (abre em `/painel`). Cada barbearia tem o seu em `/<barbearia>/manifest.webmanifest` (abre em `/<barbearia>`).
+- `public/sw.js`: guarda só ícones e arquivos estáticos com hash, mais `public/offline.html`. Nunca guarda páginas, `/api`, login nem pagamentos. Só é registrado em produção.
+- Botão "Instalar app" no painel e no rodapé da barbearia (no iPhone mostra o passo a passo do Safari).
+- Ícones em `public/icons/`. Para trocar a imagem do app, substitua esses PNGs (192, 512, 512 maskable e 180).
+- Rode `supabase/migracao-slugs.sql` para reservar nomes que o sistema já usa (termos, privacidade etc.).
+
+## Avisos no celular (Web Push)
+
+1. `npm install` (adiciona `web-push`).
+2. Gere as chaves: `npx web-push generate-vapid-keys`. Coloque na Vercel: `NEXT_PUBLIC_VAPID_PUBLIC_KEY` (Config), `VAPID_PRIVATE_KEY` (Secret) e `VAPID_SUBJECT` (`mailto:seu-email`). Faça o Redeploy (a chave pública é gravada no build).
+3. Rode `supabase/migracao-push.sql`.
+4. No painel (site publicado, app instalado no iPhone), toque em "Ativar avisos neste celular" e depois em "Enviar teste".
+Os avisos saem junto com o Telegram quando um agendamento é confirmado ou cancelado pelo cliente. O barbeiro e o dono da barbearia recebem.

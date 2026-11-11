@@ -4,7 +4,6 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 let cached: SupabaseClient | null = null;
 
-/** Cliente do navegador (chave pública). As regras de acesso ficam no banco (RLS). */
 export function supabaseBrowser(): SupabaseClient {
   if (cached) return cached;
   cached = createClient(

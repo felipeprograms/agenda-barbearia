@@ -6,7 +6,6 @@ import { settleSubscription } from "@/lib/subscription";
 
 export const dynamic = "force-dynamic";
 
-/** POST { id } — confere se a mensalidade já foi paga (a tela chama de tempo em tempo). */
 export async function POST(req: Request) {
   const limited = await rateLimit(req, LIMITS.painelPoll);
   if (limited) return limited;

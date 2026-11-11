@@ -5,13 +5,11 @@ const MP = "https://api.mercadopago.com";
 export type PixPayment = { id: string; qrCode: string; qrCodeBase64: string };
 export type PaymentInfo = { status: string; externalReference: string | null; amount: number };
 
-/** Data no formato que o Mercado Pago pede: 2026-11-05T01:00:00.000-03:00 */
 function toLocalISO(d: Date): string {
   const shifted = new Date(d.getTime() + TZ_OFFSET_MIN * 60_000);
   return shifted.toISOString().replace("Z", TZ_OFFSET);
 }
 
-/** Cria um Pix na conta do Mercado Pago do BARBEIRO (o dinheiro cai direto na conta dele). */
 export async function createPixPayment(
   accessToken: string,
   p: {
@@ -62,7 +60,6 @@ export async function createPixPayment(
   return { id: String(json.id), qrCode: data.qr_code, qrCodeBase64: data.qr_code_base64 ?? "" };
 }
 
-/** Consulta um pagamento direto no Mercado Pago (nunca confiamos no que chega pelo webhook). */
 export async function getPayment(accessToken: string, paymentId: string): Promise<PaymentInfo> {
   const res = await fetch(`${MP}/v1/payments/${encodeURIComponent(paymentId)}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
@@ -77,7 +74,6 @@ export async function getPayment(accessToken: string, paymentId: string): Promis
   };
 }
 
-/** Confere se o token informado pelo barbeiro é válido. */
 export async function checkAccessToken(accessToken: string): Promise<boolean> {
   try {
     const res = await fetch(`${MP}/users/me`, {
@@ -90,11 +86,6 @@ export async function checkAccessToken(accessToken: string): Promise<boolean> {
   }
 }
 
-/**
- * Cria um checkout hospedado do Mercado Pago (Checkout Pro) na conta do BARBEIRO, só com cartão.
- * O cliente é levado à página do Mercado Pago, paga e volta para o nosso site.
- * Devolve o endereço (init_point) para onde o cliente deve ir.
- */
 export async function createCardCheckout(
   accessToken: string,
   p: {
@@ -104,9 +95,9 @@ export async function createCardCheckout(
     payerName: string;
     payerEmail?: string;
     notificationUrl?: string;
-    returnUrl?: string; // precisa ser https para o Mercado Pago aceitar
+    returnUrl?: string;
     expiresAt: Date;
-    maxInstallments?: number; // máximo de parcelas oferecidas (padrão 1 = à vista)
+    maxInstallments?: number;
   },
 ): Promise<string> {
   const [firstName, ...rest] = p.payerName.trim().split(/\s+/);
@@ -128,9 +119,9 @@ export async function createCardCheckout(
       ...(p.payerEmail ? { email: p.payerEmail } : {}),
     },
     payment_methods: {
-      // Só cartão: tira boleto, caixa eletrônico e transferência (Pix tem fluxo próprio).
+
       excluded_payment_types: [{ id: "ticket" }, { id: "atm" }, { id: "bank_transfer" }],
-      installments: p.maxInstallments ?? 1, // padrão: à vista, para o valor recebido ser o valor cobrado
+      installments: p.maxInstallments ?? 1,
     },
     expires: true,
     expiration_date_from: toLocalISO(new Date()),
@@ -154,10 +145,6 @@ export async function createCardCheckout(
   return String(json.init_point);
 }
 
-/**
- * Procura, pelo id do agendamento (external_reference), um pagamento APROVADO.
- * Usado no cartão, onde o id do pagamento só existe depois que o cliente paga.
- */
 export async function findApprovedPayment(
   accessToken: string,
   bookingId: string,
@@ -178,10 +165,6 @@ export async function findApprovedPayment(
   };
 }
 
-/**
- * Devolve (total) um pagamento ao cliente, usando o token do barbeiro que recebeu.
- * A chave de idempotência garante que clicar duas vezes não devolve duas vezes.
- */
 export async function refundPayment(accessToken: string, paymentId: string, idempotencyKey: string): Promise<void> {
   const res = await fetch(`${MP}/v1/payments/${encodeURIComponent(paymentId)}/refunds`, {
     method: "POST",
@@ -195,7 +178,7 @@ export async function refundPayment(accessToken: string, paymentId: string, idem
   if (res.ok) return;
   const json = await res.json().catch(() => null);
   const text = JSON.stringify(json ?? {});
-  // Já devolvido antes: tratamos como sucesso.
+
   if (/already|refunded|total amount/i.test(text) && res.status === 400) return;
   throw new Error(`Mercado Pago ${res.status} ao devolver o pagamento.`);
 }

@@ -1,7 +1,6 @@
 import { shopState, formatDateBR } from "@/lib/shopStatus";
 import { todayLocal, addDays } from "@/lib/time";
 
-/** Aviso no topo do painel quando a barbearia ainda não foi liberada, venceu ou está perto de vencer. */
 export default function StatusBanner({ status, paidUntil }: { status: string; paidUntil: string | null }) {
   const state = shopState(status, paidUntil);
   const whatsapp = (process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP ?? "").replace(/\D/g, "");

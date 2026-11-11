@@ -2,6 +2,7 @@ import { supabaseAdmin } from "./supabaseAdmin";
 import { getBarberAccessToken } from "./mpOAuth";
 import { refundPayment } from "./mercadopago";
 import { sendTelegram } from "./telegram";
+import { sendPushForBarber } from "./push";
 import { CANCEL_MIN_HOURS } from "./config";
 import { formatBRL, formatDateTimeBR } from "./time";
 
@@ -9,12 +10,6 @@ export type CancelResult =
   | { ok: true; refunded: boolean }
   | { ok: false; code: "not_found" | "not_allowed" | "too_late" | "refund_failed"; message: string };
 
-/**
- * Cancela um agendamento e devolve o sinal pago.
- *  - by "customer": só agendamento confirmado e com pelo menos CANCEL_MIN_HOURS de antecedência;
- *  - by "barber": barbeiro/dono cancela a qualquer momento (inclusive pagamentos em conflito).
- * Primeiro devolve o dinheiro; só então libera o horário. Se a devolução falhar, nada muda.
- */
 export async function cancelBooking(bookingId: string, by: "customer" | "barber"): Promise<CancelResult> {
   const admin = supabaseAdmin();
   const { data: b } = await admin.from("bookings").select("*").eq("id", bookingId).maybeSingle();
@@ -63,6 +58,13 @@ export async function cancelBooking(bookingId: string, by: "customer" | "barber"
           (refunded ? ` Sinal de ${formatBRL(b.amount_cents)} devolvido.` : ""),
       );
     }
+  }
+  if (by === "customer") {
+    await sendPushForBarber(admin, b.barber_id, {
+      title: "Agendamento cancelado ❌",
+      body: `${b.customer_name} · ${b.service_name} · ${formatDateTimeBR(b.starts_at)}`,
+      tag: `bk-${b.id}`,
+    });
   }
   return { ok: true, refunded };
 }

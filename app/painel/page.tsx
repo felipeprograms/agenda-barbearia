@@ -15,9 +15,11 @@ import ProfileSection from "@/components/panel/ProfileSection";
 import BarberSection from "@/components/panel/BarberSection";
 import BrandBar from "@/components/BrandBar";
 import StatusBanner from "@/components/panel/StatusBanner";
+import InstallButton from "@/components/InstallButton";
+import PushToggle from "@/components/PushToggle";
 
 export default function PainelPage() {
-  // undefined = ainda verificando o login; null = deslogado
+
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const [ownedShop, setOwnedShop] = useState<Shop | null>(null);
   const [barber, setBarber] = useState<Barber | null>(null);
@@ -66,6 +68,8 @@ export default function PainelPage() {
   return (
     <div className="container stack">
       <BrandBar />
+      <InstallButton label="Instalar o app no celular" />
+      <PushToggle />
       <div className="row between">
         <span className="muted">{session.user.email}</span>
         <button className="btn btn-small" onClick={() => supabaseBrowser().auth.signOut()}>

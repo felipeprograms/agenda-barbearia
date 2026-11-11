@@ -10,7 +10,6 @@ import {
   weekdayOf,
 } from "./time";
 
-/** A data é válida, não é passado e está dentro da janela de agendamento? */
 export function dateInRange(date: string): boolean {
   if (!DATE_RE.test(date)) return false;
   if (Number.isNaN(new Date(`${date}T12:00:00Z`).getTime())) return false;
@@ -20,10 +19,6 @@ export function dateInRange(date: string): boolean {
 
 type Busy = { start: number; end: number };
 
-/**
- * Horários livres ("HH:MM") de um barbeiro em um dia, para um serviço com a duração dada.
- * Considera o expediente, agendamentos confirmados e reservas ainda aguardando pagamento.
- */
 export async function getAvailableSlots(
   admin: SupabaseClient,
   barberId: string,

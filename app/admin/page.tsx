@@ -31,7 +31,6 @@ const LABEL: Record<ShopState, string> = {
 };
 const BADGE: Record<ShopState, string> = { pending: "warn", open: "ok", expired: "warn", suspended: "" };
 
-/** Painel do administrador da plataforma: libera, bloqueia e controla a mensalidade das barbearias. */
 export default function AdminPage() {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const [shops, setShops] = useState<AdminShop[] | null>(null);

@@ -1,4 +1,3 @@
-/** Envia uma mensagem de texto pelo bot do Telegram. Retorna false se não conseguir. */
 export async function sendTelegram(chatId: number | string, text: string): Promise<boolean> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) return false;

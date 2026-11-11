@@ -7,7 +7,6 @@ import { supabaseBrowser } from "@/lib/supabaseBrowser";
 import BrandBar from "@/components/BrandBar";
 import PasswordForm from "@/components/panel/PasswordForm";
 
-/** Página aberta pelo link do e-mail "esqueci minha senha": o link já entra na conta e aqui se define a nova senha. */
 export default function SenhaPage() {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const [done, setDone] = useState(false);
@@ -16,7 +15,7 @@ export default function SenhaPage() {
     const auth = supabaseBrowser().auth;
     auth.getSession().then(({ data }) => setSession(data.session));
     const { data: sub } = auth.onAuthStateChange((_e, s) => setSession(s));
-    // Dá um tempo para o link do e-mail ser lido antes de dizer que é inválido.
+
     const t = setTimeout(() => setSession((cur) => (cur === undefined ? null : cur)), 4000);
     return () => {
       sub.subscription.unsubscribe();

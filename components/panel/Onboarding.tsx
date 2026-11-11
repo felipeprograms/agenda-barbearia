@@ -6,7 +6,6 @@ import { supabaseBrowser } from "@/lib/supabaseBrowser";
 import { slugify } from "@/lib/panelUtils";
 import BarberForm from "./BarberForm";
 
-/** Primeiro acesso: criar uma barbearia (dono) ou entrar numa com código de convite (barbeiro). */
 export default function Onboarding({ session, onDone }: { session: Session; onDone: () => void }) {
   const [tab, setTab] = useState<"owner" | "invite">("owner");
   const [name, setName] = useState("");

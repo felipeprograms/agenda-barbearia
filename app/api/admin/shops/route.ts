@@ -13,7 +13,6 @@ function fail(status: number, error: string) {
   return NextResponse.json({ error }, { status });
 }
 
-/** GET: lista todas as barbearias com números para você decidir e cobrar. */
 export async function GET(req: Request) {
   const limited = await rateLimit(req, LIMITS.admin);
   if (limited) return limited;
@@ -74,19 +73,6 @@ export async function GET(req: Request) {
   return NextResponse.json({ shops: list, today: todayLocal() });
 }
 
-/**
- * POST { shopId, action, days?, date?, note? }
- *  approve        libera a barbearia e soma "days" (padrão 30) de uso; com trial = true, marca como plano de teste
- *  add_days       soma "days" ao vencimento (a partir de hoje ou do vencimento atual, o que for mais tarde)
- *  set_paid_until define o vencimento exato (date) ou remove (date vazio = sem vencimento)
- *  suspend        tira do ar
- *  reactivate     volta a liberar (não mexe no vencimento)
- *  set_password   define uma nova senha (8 a 72 letras) para o dono da barbearia
- *  note           grava uma anotação sua (até 200 letras)
- *  delete         apaga a barbearia para sempre (exige "confirm" = endereço da barbearia).
- *                 "deleteAccounts" também apaga os logins do dono e dos barbeiros (nunca os de administradores).
- *                 Se houver agendamentos pagos futuros, responde 409 até receber "force": true.
- */
 export async function POST(req: Request) {
   const limited = await rateLimit(req, LIMITS.admin);
   if (limited) return limited;
@@ -126,7 +112,7 @@ export async function POST(req: Request) {
     case "approve":
       if (Number.isNaN(days)) return fail(400, "Informe de 1 a 366 dias.");
       patch = { status: "active", approved_at: new Date().toISOString(), paid_until: extend(days) };
-      if (body.trial === true) patch.plan = "teste"; // plano de teste: só você libera
+      if (body.trial === true) patch.plan = "teste";
       break;
     case "add_days":
       if (Number.isNaN(days)) return fail(400, "Informe de 1 a 366 dias.");
@@ -175,7 +161,6 @@ export async function POST(req: Request) {
 
 type ShopRow = { id: string; slug: string; owner_user_id: string; paid_until: string | null };
 
-/** Apaga a barbearia e tudo que pertence a ela. Ordem importa: agendamentos antes dos serviços. */
 async function deleteShop(admin: ReturnType<typeof supabaseAdmin>, shop: ShopRow, body: Record<string, unknown>) {
   if (String(body.confirm ?? "").trim().toLowerCase() !== shop.slug) {
     return fail(400, "Para excluir, digite o endereço da barbearia exatamente como aparece.");
@@ -202,7 +187,6 @@ async function deleteShop(admin: ReturnType<typeof supabaseAdmin>, shop: ShopRow
     }
   }
 
-  // Fotos enviadas (cada usuário tem uma pasta no armazenamento). Se falhar, não impede a exclusão.
   for (const uid of userIds) {
     try {
       const { data: files } = await admin.storage.from("fotos").list(uid, { limit: 200 });

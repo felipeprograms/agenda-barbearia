@@ -5,10 +5,6 @@ export type StackItem = {
   initials?: string;
 };
 
-/**
- * Fotos distribuídas e sobrepostas em camadas (tamanhos diferentes, alturas diferentes, sombra).
- * Aceita de 1 a 3 itens; quem chama divide listas maiores em grupos de 3.
- */
 export default function PhotoStack({ items }: { items: StackItem[] }) {
   const list = items.slice(0, 3);
   if (list.length === 0) return null;

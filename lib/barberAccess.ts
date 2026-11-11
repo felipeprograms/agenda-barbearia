@@ -1,10 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-/**
- * Descobre qual barbeiro o usuário logado está mexendo (uso só no servidor).
- *  - sem barberId: o próprio cadastro de barbeiro do usuário;
- *  - com barberId: só vale se o barbeiro for da barbearia do próprio usuário (dono).
- */
 export async function resolveBarberId(
   admin: SupabaseClient,
   userId: string,

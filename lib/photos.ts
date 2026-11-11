@@ -2,10 +2,9 @@ import { supabaseBrowser } from "./supabaseBrowser";
 import { prepareImage } from "./imageUtils";
 
 const BUCKET = "fotos";
-const MAX_ORIGINAL_BYTES = 15 * 1024 * 1024; // foto original que a pessoa escolhe
-const MAX_FINAL_BYTES = 900 * 1024; // depois de reduzida (o bucket aceita até 1 MB)
+const MAX_ORIGINAL_BYTES = 15 * 1024 * 1024;
+const MAX_FINAL_BYTES = 900 * 1024;
 
-/** Reduz a foto (ou o logo, em PNG), envia para a pasta do usuário logado e devolve o endereço público dela. */
 export async function uploadPhoto(file: File, opts: { logo?: boolean } = {}): Promise<string> {
   const db = supabaseBrowser();
   const { data } = await db.auth.getUser();
@@ -16,7 +15,7 @@ export async function uploadPhoto(file: File, opts: { logo?: boolean } = {}): Pr
 
   const png = Boolean(opts.logo);
   let blob = await prepareImage(file, png ? 1000 : 1600, 0.82, png ? "png" : "jpeg");
-  // Ainda grande? Reduz mais, em passos, até caber no limite.
+
   for (const [side, q] of [[1280, 0.72], [1000, 0.65], [800, 0.55]] as const) {
     if (blob.size <= MAX_FINAL_BYTES) break;
     blob = await prepareImage(file, png ? Math.min(side, 800) : side, q, png ? "png" : "jpeg");
@@ -39,7 +38,6 @@ export async function uploadPhoto(file: File, opts: { logo?: boolean } = {}): Pr
   return db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
-/** Apaga uma foto enviada antes (ignora erros: no máximo sobra um arquivo sem uso). */
 export async function removePhoto(url: string): Promise<void> {
   const marker = `/object/public/${BUCKET}/`;
   const i = url.indexOf(marker);
@@ -48,6 +46,6 @@ export async function removePhoto(url: string): Promise<void> {
   try {
     await supabaseBrowser().storage.from(BUCKET).remove([path]);
   } catch {
-    /* sem problema */
+
   }
 }

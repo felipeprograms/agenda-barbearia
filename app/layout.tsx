@@ -1,10 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { BRAND } from "@/lib/brand";
+import PwaRegister from "@/components/PwaRegister";
 
 export const metadata: Metadata = {
   title: { default: `${BRAND} | Agenda online para barbearias`, template: `%s | ${BRAND}` },
   description: "Agende seu horário na barbearia e garanta a vaga com Pix ou cartão.",
+  applicationName: BRAND,
+  icons: { icon: "/icons/icon-192.png", apple: "/icons/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: BRAND, statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {
@@ -27,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <div className="pole" aria-hidden="true" />
         <main>{children}</main>
+        <PwaRegister />
       </body>
     </html>
   );

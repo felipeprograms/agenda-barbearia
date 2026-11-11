@@ -9,17 +9,12 @@ function fail(status: number, error: string) {
   return NextResponse.json({ error }, { status });
 }
 
-/**
- * Login, cadastro e "esqueci minha senha" passam por aqui para termos limite de tentativas
- * (por IP e por e-mail) e resposta 429 com Retry-After.
- * POST { action: "login" | "signup" | "reset", email, password? }
- */
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const action = String(body.action ?? "");
   const email = String(body.email ?? "").trim().toLowerCase();
   const password = String(body.password ?? "");
-  // Token do Captcha (Cloudflare Turnstile). Quem confere é o próprio Supabase, quando o Captcha está ligado lá.
+
   const captchaToken = typeof body.captchaToken === "string" && body.captchaToken.length < 3000 ? body.captchaToken : undefined;
   const captchaMsg = "Não conseguimos confirmar que você não é um robô. Recarregue a página e tente de novo.";
   const isCaptchaError = (m: string) => /captcha/i.test(m);
@@ -47,10 +42,16 @@ export async function POST(req: Request) {
     const limited = await rateLimit(req, LIMITS.authSignupIp);
     if (limited) return limited;
     if (password.length < 8 || password.length > 72) return fail(400, "A senha precisa ter de 8 a 72 caracteres.");
+    if (body.acceptTerms !== true) return fail(400, "É preciso aceitar os Termos de uso e a Política de privacidade.");
     const { data, error } = await sb.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${APP_URL}/painel`, captchaToken },
+      options: {
+        emailRedirectTo: `${APP_URL}/painel`,
+        captchaToken,
+
+        data: { terms_accepted_at: new Date().toISOString(), terms_version: "2026-11" },
+      },
     });
     if (error && isCaptchaError(error.message)) return fail(400, captchaMsg);
     if (error) {
@@ -76,7 +77,7 @@ export async function POST(req: Request) {
     if (limited) return limited;
     const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: `${APP_URL}/painel/senha`, captchaToken });
     if (error && isCaptchaError(error.message)) return fail(400, captchaMsg);
-    // Resposta igual exista ou não a conta, para ninguém descobrir quais e-mails têm cadastro.
+
     return NextResponse.json({ ok: true });
   }
 

@@ -35,11 +35,6 @@ type RawBarber = {
   services: (PublicService & { active: boolean })[] | null;
 };
 
-/**
- * Dados públicos da página da barbearia. Só aparecem barbeiros ativos, com Mercado Pago
- * conectado (sem isso não há como cobrar) e pelo menos um serviço.
- * Se "barberSlug" for informado, devolve só aquele barbeiro.
- */
 export async function loadPublicShop(shopSlug: string, barberSlug?: string): Promise<PublicShop | null> {
   const admin = supabaseAdmin();
 

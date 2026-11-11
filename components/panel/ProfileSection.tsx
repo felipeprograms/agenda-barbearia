@@ -7,7 +7,6 @@ import type { Shop } from "@/lib/panelUtils";
 
 const MAX_GALLERY = 3;
 
-/** "@meu.insta", "instagram.com/meu.insta?x=1" -> "meu.insta" */
 function cleanInstagram(v: string): string {
   return v
     .trim()
@@ -16,7 +15,6 @@ function cleanInstagram(v: string): string {
     .split(/[/?#]/)[0];
 }
 
-/** Área do dono: textos e fotos que aparecem na página pública da barbearia. */
 export default function ProfileSection({ shop, onChange }: { shop: Shop; onChange: () => void }) {
   const [f, setF] = useState({
     name: shop.name,
@@ -175,7 +173,7 @@ export default function ProfileSection({ shop, onChange }: { shop: Shop; onChang
         </p>
         {shop.logo_url && (
           <div className="logo-preview">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+
             <img src={shop.logo_url} alt="Logo atual da barbearia" />
           </div>
         )}
@@ -225,7 +223,7 @@ export default function ProfileSection({ shop, onChange }: { shop: Shop; onChang
           <div className="thumbs">
             {shop.gallery.map((url) => (
               <div className="thumb" key={url}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+
                 <img src={url} alt="" />
                 <button type="button" aria-label="Remover foto" onClick={() => removeFromGallery(url)}>
                   ×

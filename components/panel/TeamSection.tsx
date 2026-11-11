@@ -8,7 +8,6 @@ import { Hours, PhotoCard, Services } from "./BarberSection";
 
 type Row = { name: string; me: boolean };
 
-/** Equipe: o dono cadastra os barbeiros aqui, ativa/desativa e configura cada um. */
 export default function TeamSection({
   shop,
   myUserId,
@@ -202,7 +201,6 @@ function TeamItem({
   );
 }
 
-/** Configuração de um barbeiro feita pelo dono: foto, sinal, link de conexão, serviços e horários. */
 function ManagedEditor({ barber, onChange }: { barber: Barber; onChange: () => void }) {
   const [copied, setCopied] = useState(false);
   const [token, setToken] = useState("");

@@ -5,7 +5,6 @@ import { authorizationUrl, makeState, oauthConfigured } from "@/lib/mpOAuth";
 
 export const dynamic = "force-dynamic";
 
-/** POST { token } — o barbeiro sem login (link de conexão) pede o endereço de autorização do Mercado Pago. */
 export async function POST(req: Request) {
   const limited = await rateLimit(req, LIMITS.connect);
   if (limited) return limited;

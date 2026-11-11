@@ -6,7 +6,6 @@ import { removePhoto, uploadPhoto } from "@/lib/photos";
 import { WEEKDAYS, copyText, postAuthed, reaisToCents, type Barber, type ShopBasic } from "@/lib/panelUtils";
 import { formatBRL, formatDateTimeBR } from "@/lib/time";
 
-/** Área do barbeiro: links, Mercado Pago, Telegram, serviços, horários e agenda. */
 export default function BarberSection({
   barber,
   shop,
@@ -62,15 +61,12 @@ export default function BarberSection({
   );
 }
 
-/* ---------------- Mercado Pago, Telegram e sinal ---------------- */
-
 export function Integrations({ barber, onChange }: { barber: Barber; onChange: () => void }) {
   const [token, setToken] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const bot = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME;
 
-  // Mensagem na volta do Mercado Pago (/painel?mp=ok ou ?mp=erro)
   useEffect(() => {
     const r = new URLSearchParams(window.location.search).get("mp");
     if (r === "ok") setMsg({ ok: true, text: "Mercado Pago conectado com sucesso!" });
@@ -198,8 +194,6 @@ export function Integrations({ barber, onChange }: { barber: Barber; onChange: (
   );
 }
 
-/* ---------------- Serviços ---------------- */
-
 type Service = { id: string; name: string; price_cents: number; duration_min: number };
 
 export function Services({ barber }: { barber: Barber }) {
@@ -242,7 +236,7 @@ export function Services({ barber }: { barber: Barber }) {
   }
 
   async function remove(id: string) {
-    // Não apagamos de verdade: agendamentos antigos continuam apontando para o serviço.
+
     await supabaseBrowser().from("services").update({ active: false }).eq("id", id);
     await load();
   }
@@ -291,8 +285,6 @@ export function Services({ barber }: { barber: Barber }) {
     </div>
   );
 }
-
-/* ---------------- Horários de atendimento ---------------- */
 
 type Hour = { id: string; weekday: number; start_time: string; end_time: string };
 
@@ -407,8 +399,6 @@ export function Hours({ barber }: { barber: Barber }) {
   );
 }
 
-/* ---------------- Próximos agendamentos ---------------- */
-
 type BookingRow = {
   id: string;
   service_name: string;
@@ -492,8 +482,6 @@ function Bookings({ barber }: { barber: Barber }) {
     </div>
   );
 }
-
-/* ---------------- Foto do barbeiro ---------------- */
 
 export function PhotoCard({ barber, onChange }: { barber: Barber; onChange: () => void }) {
   const [busy, setBusy] = useState(false);

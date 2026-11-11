@@ -17,10 +17,6 @@ function fail(status: number, error: string) {
   return NextResponse.json({ error }, { status });
 }
 
-/**
- * POST /api/book
- * Reserva o horário por HOLD_MINUTES minutos e gera o Pix na conta do barbeiro.
- */
 export async function POST(req: Request) {
   const limited = await rateLimit(req, LIMITS.book);
   if (limited) return limited;
@@ -68,11 +64,9 @@ export async function POST(req: Request) {
     .maybeSingle();
   if (!service) return fail(404, "Serviço não encontrado.");
 
-  // O horário precisa estar de fato livre (recalculado no servidor, não confiamos no navegador).
   const free = await getAvailableSlots(admin, barberId, date, service.duration_min);
   if (!free.includes(time)) return fail(409, "Esse horário acabou de ser ocupado. Escolha outro.");
 
-  // Evita que uma pessoa segure vários horários sem pagar.
   const { count } = await admin
     .from("bookings")
     .select("id", { count: "exact", head: true })
@@ -125,7 +119,7 @@ export async function POST(req: Request) {
         payerName: name,
         payerEmail: email || undefined,
         notificationUrl,
-        // O Mercado Pago só aceita endereço de retorno em https.
+
         returnUrl: APP_URL.startsWith("https://") ? `${APP_URL}/pagamento/${booking.id}` : undefined,
         expiresAt: new Date(Date.now() + 30 * 60_000),
       });
@@ -145,7 +139,7 @@ export async function POST(req: Request) {
       payerEmail: email || process.env.FALLBACK_PAYER_EMAIL || "cliente@email.com",
       payerName: name,
       notificationUrl,
-      // O Pix vale por mais tempo que a reserva; pagamento tardio é tratado em confirm_booking.
+
       expiresAt: new Date(Date.now() + 30 * 60_000),
     });
 

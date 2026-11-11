@@ -5,17 +5,13 @@ import { useEffect, useState, type ReactNode } from "react";
 export type WizardStep = {
   id: string;
   title: string;
-  /** Explicação que aparece ao tocar no (i). */
+
   info: string;
   content: ReactNode;
-  /** Chamado ao confirmar. Devolva um texto de erro para impedir de avançar, ou null se está tudo certo. */
+
   onConfirm?: () => Promise<string | null>;
 };
 
-/**
- * Janela (popup) que guia a pessoa passo a passo.
- * Em cada passo: (i) com a explicação, "Está certo, continuar", "Voltar" e "Fazer depois".
- */
 export default function Wizard({
   title,
   steps,
@@ -23,7 +19,7 @@ export default function Wizard({
 }: {
   title: string;
   steps: WizardStep[];
-  /** finished = true quando terminou todos os passos; false quando fechou para fazer depois. */
+
   onClose: (finished: boolean) => void;
 }) {
   const [i, setI] = useState(0);

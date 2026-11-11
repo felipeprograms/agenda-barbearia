@@ -6,7 +6,6 @@ import { exchangeCode, oauthConfigured, readState, saveOAuthTokens } from "@/lib
 
 export const dynamic = "force-dynamic";
 
-/** Barbeiro sem login volta para o link de conexão dele; quem tem login volta para o painel. */
 async function back(result: "ok" | "erro", barberId?: string | null) {
   if (barberId) {
     const { data } = await supabaseAdmin()
@@ -21,7 +20,6 @@ async function back(result: "ok" | "erro", barberId?: string | null) {
   return NextResponse.redirect(`${APP_URL}/painel?mp=${result}`);
 }
 
-/** Volta do Mercado Pago depois que o barbeiro autoriza: troca o código pelo token e guarda no servidor. */
 export async function GET(req: Request) {
   const limited = await rateLimit(req, LIMITS.mpCallback);
   if (limited) return limited;
@@ -31,7 +29,7 @@ export async function GET(req: Request) {
   const state = url.searchParams.get("state") ?? "";
   const barberId = readState(state);
 
-  if (!oauthConfigured() || !code || !barberId) return back("erro", barberId); // inclui o caso de recusar
+  if (!oauthConfigured() || !code || !barberId) return back("erro", barberId);
 
   try {
     const tokens = await exchangeCode(code);

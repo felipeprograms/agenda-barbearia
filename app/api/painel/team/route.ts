@@ -22,11 +22,6 @@ function slugify(s: string): string {
   );
 }
 
-/**
- * POST { barbers: [{ name, me? }] } — o dono cadastra um ou vários barbeiros da própria barbearia.
- *  - me = true: o barbeiro é o próprio dono (fica ligado ao login dele, uma vez só);
- *  - sem me: barbeiro sem login; ele conecta o Mercado Pago pelo link de conexão.
- */
 export async function POST(req: Request) {
   const limited = await rateLimit(req, LIMITS.painelWrite);
   if (limited) return limited;

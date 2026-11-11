@@ -39,12 +39,27 @@ export default function Termos() {
         É proibido tentar acessar dados de outras barbearias, sobrecarregar o sistema, enviar conteúdo ilegal ou usar a
         Plataforma para fraude.
       </p>
-      <h2>6. Disponibilidade</h2>
+      <h2>6. Conteúdo publicado pela barbearia</h2>
       <p>
-        Trabalhamos para manter o serviço no ar, mas não garantimos funcionamento ininterrupto. Podem ocorrer manutenções e
-        falhas de serviços de terceiros (hospedagem, banco de dados, Mercado Pago, Telegram).
+        A barbearia é a única responsável pelos textos, preços, fotos e logotipos que publica, e declara ter autorização das
+        pessoas que aparecem nas imagens (direito de imagem) e dos titulares de marcas e fotografias. Podemos remover
+        conteúdo ilegal ou que viole direitos de terceiros.
       </p>
-      <h2>7. Alterações e contato</h2>
+      <h2>7. Assinatura, cancelamento e reembolso</h2>
+      <p>
+        A assinatura (mensal ou anual) é paga adiantada e <strong>não renova sozinha</strong>: para encerrar, basta não pagar
+        o período seguinte. Quem contrata pela internet pode desistir em até 7 dias corridos da primeira contratação, com
+        reembolso integral, pedindo pelo e-mail de contato. Depois disso, o valor do período já utilizado não é devolvido.
+      </p>
+      <h2>8. Disponibilidade e limite de responsabilidade</h2>
+      <p>
+        Trabalhamos para manter o serviço no ar, mas não garantimos funcionamento ininterrupto: podem ocorrer manutenções e
+        falhas de serviços de terceiros (hospedagem, banco de dados, Mercado Pago, Telegram). Na extensão permitida pela lei,
+        não respondemos por lucros cessantes nem por danos indiretos, e nossa responsabilidade total fica limitada ao valor
+        pago pela barbearia pela assinatura nos 12 meses anteriores ao fato. Isso não afasta direitos que a lei garante ao
+        consumidor.
+      </p>
+      <h2>9. Alterações e contato</h2>
       <p>
         Podemos atualizar estes termos; a data acima indica a versão vigente. Dúvidas: escreva para <a href="mailto:felipefernand3sz@gmail.com">felipefernand3sz@gmail.com</a>.
       </p>

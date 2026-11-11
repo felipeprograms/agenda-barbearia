@@ -3,11 +3,6 @@
 import { useState, type FormEvent } from "react";
 import { postAuthed, slugify } from "@/lib/panelUtils";
 
-/**
- * Cadastro de barbeiro.
- *  - invite = true: o barbeiro entra numa barbearia usando o código de convite;
- *  - invite = false: o dono da barbearia cria o próprio cadastro de barbeiro.
- */
 export default function BarberForm({ invite, onDone }: { invite: boolean; onDone: () => void }) {
   const [code, setCode] = useState("");
   const [name, setName] = useState("");

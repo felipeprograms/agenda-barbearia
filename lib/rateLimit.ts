@@ -1,29 +1,28 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "./supabaseAdmin";
 
-/** Limites por rota: "max" chamadas a cada "windowSec" segundos, contadas por IP (ou por outra chave). */
 export const LIMITS = {
-  // Públicas
-  book: { name: "book", max: 8, windowSec: 600 }, // cria reserva e chama o Mercado Pago
+
+  book: { name: "book", max: 8, windowSec: 600 },
   slots: { name: "slots", max: 60, windowSec: 60 },
-  bookingStatus: { name: "bkst", max: 120, windowSec: 60 }, // a tela confere de poucos em poucos segundos
+  bookingStatus: { name: "bkst", max: 120, windowSec: 60 },
   bookingCancel: { name: "bkcx", max: 10, windowSec: 600 },
   connect: { name: "conn", max: 10, windowSec: 600 },
   mpCallback: { name: "mpcb", max: 20, windowSec: 600 },
-  webhook: { name: "hook", max: 300, windowSec: 60 }, // webhooks do Mercado Pago e do Telegram
-  // Login, cadastro e recuperação de senha (por IP e, separado, por e-mail)
+  webhook: { name: "hook", max: 300, windowSec: 60 },
+
   authLoginIp: { name: "login-ip", max: 20, windowSec: 900 },
   authLoginEmail: { name: "login-em", max: 6, windowSec: 900 },
   authSignupIp: { name: "signup-ip", max: 5, windowSec: 3600 },
   authResetIp: { name: "reset-ip", max: 5, windowSec: 3600 },
   authResetEmail: { name: "reset-em", max: 3, windowSec: 3600 },
-  // Painel (logado)
+
   painelWrite: { name: "pw", max: 30, windowSec: 600 },
-  painelPay: { name: "pay", max: 10, windowSec: 600 }, // gera Pix/cartão da mensalidade
+  painelPay: { name: "pay", max: 10, windowSec: 600 },
   painelPoll: { name: "poll", max: 90, windowSec: 60 },
-  painelToken: { name: "tok", max: 10, windowSec: 600 }, // confere token no Mercado Pago
+  painelToken: { name: "tok", max: 10, windowSec: 600 },
   admin: { name: "adm", max: 120, windowSec: 60 },
-  // Reservado para chamadas de IA, caso o projeto venha a ter
+
   ai: { name: "ai", max: 20, windowSec: 600 },
 } as const;
 
@@ -35,7 +34,6 @@ export function clientIp(req: Request): string {
   return raw.split(",")[0].trim() || "unknown";
 }
 
-// Plano B (por instância) para quando o banco estiver fora do ar ou a migração ainda não rodou.
 const memory = new Map<string, { n: number; resetAt: number }>();
 function memoryHit(key: string, rule: Rule): { allowed: boolean; retryAfter: number } {
   const now = Date.now();
@@ -46,10 +44,6 @@ function memoryHit(key: string, rule: Rule): { allowed: boolean; retryAfter: num
   return { allowed: e.n <= rule.max, retryAfter: Math.max(1, Math.ceil((e.resetAt - now) / 1000)) };
 }
 
-/**
- * Confere o limite. Devolve null se pode seguir, ou uma resposta 429 (com Retry-After) para ser retornada.
- * `id` troca o IP por outra chave (ex.: e-mail). Se o banco falhar, usa o contador em memória (nunca derruba a rota).
- */
 export async function rateLimit(req: Request, rule: Rule, id?: string): Promise<Response | null> {
   const key = `${rule.name}:${(id ?? clientIp(req)).toLowerCase().slice(0, 200)}`;
   let allowed = true;

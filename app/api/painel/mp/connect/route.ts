@@ -7,7 +7,6 @@ import { authorizationUrl, makeState, oauthConfigured } from "@/lib/mpOAuth";
 
 export const dynamic = "force-dynamic";
 
-/** POST — devolve o endereço do Mercado Pago onde o barbeiro entra e autoriza a conexão. */
 export async function POST(req: Request) {
   const limited = await rateLimit(req, LIMITS.painelToken);
   if (limited) return limited;

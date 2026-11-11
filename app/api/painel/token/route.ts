@@ -7,7 +7,6 @@ import { resolveBarberId } from "@/lib/barberAccess";
 
 export const dynamic = "force-dynamic";
 
-/** POST { token, barberId? } — cola o Access Token do Mercado Pago do barbeiro (o dono pode informar barberId). */
 export async function POST(req: Request) {
   const limited = await rateLimit(req, LIMITS.painelToken);
   if (limited) return limited;
@@ -22,7 +21,7 @@ export async function POST(req: Request) {
     token = String(body.token ?? "").trim();
     barberIdIn = body.barberId ? String(body.barberId) : undefined;
   } catch {
-    /* corpo inválido */
+
   }
   if (token.length < 20 || token.length > 300) {
     return NextResponse.json({ error: "Token inválido." }, { status: 400 });

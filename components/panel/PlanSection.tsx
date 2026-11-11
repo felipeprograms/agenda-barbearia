@@ -9,7 +9,6 @@ import { addDays, formatBRL, todayLocal } from "@/lib/time";
 
 type Pix = { id: string; qrCode: string; qrCodeBase64: string; plan: PlanId };
 
-/** Planos e pagamento da mensalidade pelo Pix ou cartão. A barbearia é liberada sozinha quando o pagamento cai. */
 export default function PlanSection({ shop, onChange }: { shop: ShopBasic; onChange: () => void }) {
   const [busy, setBusy] = useState<string>("");
   const [error, setError] = useState("");
@@ -44,7 +43,6 @@ export default function PlanSection({ shop, onChange }: { shop: ShopBasic; onCha
     timer.current = setInterval(() => void check(id), 5000);
   }
 
-  // Volta do cartão (/painel?assinatura=<id>)
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get("assinatura");
     if (id) {

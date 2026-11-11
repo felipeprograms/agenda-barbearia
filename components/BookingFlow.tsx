@@ -35,7 +35,6 @@ function monthLabel(m: string) {
   return txt.charAt(0).toUpperCase() + txt.slice(1);
 }
 
-/** Todos os dias do mês em linhas de 7 (null = espaço vazio antes do dia 1). */
 function monthCells(m: string): (string | null)[] {
   const [y, mo] = m.split("-").map(Number);
   const blanks = new Date(Date.UTC(y, mo - 1, 1)).getUTCDay();
@@ -70,7 +69,6 @@ function Sheet({ children }: { children: ReactNode }) {
 
 type LedgerRow = { label: string; value?: string; onClick?: () => void; active?: boolean };
 
-/** Resumo do que já foi escolhido, no estilo de comanda. Cada linha preenchida pode ser tocada para voltar. */
 function Ledger({ rows }: { rows: LedgerRow[] }) {
   return (
     <ul className="ledger">
@@ -142,7 +140,6 @@ export default function BookingFlow({
   }, [today, lastDate]);
   const [month, setMonth] = useState(today.slice(0, 7));
 
-  // Mesma conta que o servidor faz: sinal em % do preço, no mínimo R$ 1,00 e no máximo o preço.
   const deposit =
     service && barber
       ? Math.min(service.price_cents, Math.max(100, Math.round((service.price_cents * barber.deposit_percent) / 100)))
@@ -154,7 +151,6 @@ export default function BookingFlow({
     return Object.entries(byPeriod).filter(([, list]) => list.length > 0);
   }, [slots]);
 
-  // Busca os horários livres sempre que barbeiro, serviço ou dia mudam.
   useEffect(() => {
     if (!barberId || !serviceId || !date) return;
     let cancelled = false;
@@ -175,7 +171,6 @@ export default function BookingFlow({
     };
   }, [barberId, serviceId, date, slotsVersion]);
 
-  // Depois de gerar o Pix: confere o pagamento a cada 3 segundos.
   useEffect(() => {
     if (!pix || status !== "pending") return;
     const id = setInterval(async () => {
@@ -185,13 +180,12 @@ export default function BookingFlow({
         const json = (await res.json()) as { status: Status };
         if (json.status !== "pending") setStatus(json.status);
       } catch {
-        /* tenta de novo no próximo ciclo */
+
       }
     }, 3000);
     return () => clearInterval(id);
   }, [pix, status]);
 
-  // Relógio da contagem regressiva.
   useEffect(() => {
     if (!pix || status !== "pending") return;
     const id = setInterval(() => setNow(Date.now()), 1000);
@@ -212,14 +206,14 @@ export default function BookingFlow({
       if (!res.ok) {
         setError(json.error ?? "Não foi possível agendar.");
         if (res.status === 409) {
-          // Horário foi ocupado por outra pessoa: volta para a escolha de horário.
+
           setTime(null);
           setSlotsVersion((v) => v + 1);
         }
         return;
       }
       if (json.checkoutUrl) {
-        // Cartão: leva o cliente para a página de pagamento do Mercado Pago.
+
         setRedirecting(true);
         window.location.href = json.checkoutUrl as string;
         return;
@@ -241,7 +235,7 @@ export default function BookingFlow({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      /* se o navegador bloquear, o cliente pode selecionar o texto manualmente */
+
     }
   }
 
@@ -253,7 +247,6 @@ export default function BookingFlow({
     setSlotsVersion((v) => v + 1);
   }
 
-  // ---------- Tela de pagamento / confirmação ----------
   if (pix) {
     const secondsLeft = Math.max(0, Math.floor((new Date(pix.holdExpiresAt).getTime() - now) / 1000));
     const mm = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
@@ -370,7 +363,6 @@ export default function BookingFlow({
     );
   }
 
-  // ---------- Escolhas do agendamento ----------
   const rows: LedgerRow[] = [
     {
       label: "Barbeiro",
@@ -427,7 +419,6 @@ export default function BookingFlow({
         </div>
       )}
 
-      {/* 1. Barbeiro */}
       {!barber && (
         <div className="step">
           <h2 className="step-title">Escolha o barbeiro</h2>
@@ -451,7 +442,6 @@ export default function BookingFlow({
         </div>
       )}
 
-      {/* 2. Serviço */}
       {barber && !service && (
         <div className="step">
           <h2 className="step-title">Escolha o serviço</h2>
@@ -470,7 +460,6 @@ export default function BookingFlow({
         </div>
       )}
 
-      {/* 3. Dia e horário */}
       {barber && service && !time && (
         <div className="step">
           <h2 className="step-title">Escolha o dia e o horário</h2>
@@ -541,7 +530,6 @@ export default function BookingFlow({
         </div>
       )}
 
-      {/* 4. Dados do cliente e pagamento */}
       {barber && service && date && time && (
         <form className="step stack" onSubmit={submit}>
           <h2 className="step-title" style={{ marginBottom: 0 }}>
@@ -598,6 +586,12 @@ export default function BookingFlow({
 
           <p className="muted" style={{ margin: 0 }}>
             O horário fica reservado por 10 minutos enquanto você paga.
+          </p>
+          <p className="muted" style={{ margin: 0, fontSize: 13 }}>
+            Cancelamento: você pode cancelar até 2 horas antes e o sinal é devolvido pelo mesmo meio de pagamento.
+            Ao reservar, você concorda com os <a href="/termos" target="_blank" rel="noreferrer">Termos de uso</a> e a{" "}
+            <a href="/privacidade" target="_blank" rel="noreferrer">Política de privacidade</a>. Usamos seu nome e
+            WhatsApp apenas para este agendamento.
           </p>
           {error && <p className="error" role="alert">{error}</p>}
           <button className="btn btn-primary btn-block" disabled={sending || redirecting} type="submit">

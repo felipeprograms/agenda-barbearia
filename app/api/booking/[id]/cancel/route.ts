@@ -5,7 +5,6 @@ import { cancelBooking } from "@/lib/cancel";
 export const dynamic = "force-dynamic";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** POST /api/booking/<id>/cancel — o cliente cancela (o id do agendamento funciona como senha) e recebe o sinal de volta. */
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const limited = await rateLimit(req, LIMITS.bookingCancel);
   if (limited) return limited;
