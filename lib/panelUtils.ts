@@ -13,6 +13,9 @@ export type Shop = ShopBasic & {
   tagline: string | null;
   about: string | null;
   address: string | null;
+  cep?: string | null;
+  lat?: number | null;
+  lng?: number | null;
   phone: string | null;
   instagram: string | null;
   hours_text: string | null;
@@ -35,6 +38,7 @@ export type Barber = {
   active: boolean;
   user_id?: string | null;
   connect_token?: string;
+  archived_at?: string | null;
 };
 
 export const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];

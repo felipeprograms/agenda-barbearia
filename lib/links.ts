@@ -7,6 +7,14 @@ export function mapsLink(address: string): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 }
 
+export function mapsCoordsLink(lat: number, lng: number): string {
+  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+}
+
+export function wazeLink(lat: number, lng: number): string {
+  return `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
+}
+
 export function instagramLink(handle: string): string {
   return `https://instagram.com/${handle}`;
 }

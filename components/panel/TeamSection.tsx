@@ -26,7 +26,7 @@ export default function TeamSection({
 
   const load = useCallback(async () => {
     const { data } = await supabaseBrowser().from("barbers").select("*").eq("shop_id", shop.id).order("created_at");
-    setTeam((data ?? []) as Barber[]);
+    setTeam(((data ?? []) as Barber[]).filter((b) => !b.archived_at));
   }, [shop.id]);
 
   useEffect(() => {
@@ -83,6 +83,7 @@ export default function TeamSection({
             expanded={openId === b.id}
             onExpand={() => setOpenId(openId === b.id ? null : b.id)}
             onToggle={() => toggle(b)}
+            onRemoved={(text) => setMsg({ ok: true, text })}
             onChange={async () => {
               await load();
               onChange();
@@ -150,6 +151,7 @@ function TeamItem({
   expanded,
   onExpand,
   onToggle,
+  onRemoved,
   onChange,
 }: {
   barber: Barber;
@@ -157,8 +159,28 @@ function TeamItem({
   expanded: boolean;
   onExpand: () => void;
   onToggle: () => void;
+  onRemoved: (text: string) => void;
   onChange: () => void;
 }) {
+  const [removing, setRemoving] = useState(false);
+  const [err, setErr] = useState("");
+
+  async function remove() {
+    if (
+      !window.confirm(
+        `Remover ${barber.name}? Ele deixa de aparecer para os clientes e o acesso dele é encerrado. Os agendamentos antigos continuam guardados.`,
+      )
+    )
+      return;
+    setRemoving(true);
+    setErr("");
+    const r = await postAuthed("/api/painel/team/remove", { barberId: barber.id });
+    setRemoving(false);
+    if (!r.ok) return setErr(r.error ?? "Não foi possível remover.");
+    onRemoved(`${barber.name} foi removido.`);
+    onChange();
+  }
+
   return (
     <div className="stack" style={{ borderBottom: "1px solid var(--rule)", paddingBottom: 12, marginBottom: 12 }}>
       <div className="row between">
@@ -188,16 +210,52 @@ function TeamItem({
           <button className="btn btn-small" onClick={onToggle}>
             {barber.active ? "Desativar" : "Ativar"}
           </button>
-          {!mine && (
-            <button className="btn btn-small" onClick={onExpand}>
-              {expanded ? "Fechar" : "Configurar"}
-            </button>
-          )}
+          <button className="btn btn-small" onClick={onExpand}>
+            {expanded ? "Fechar" : mine ? "Editar nome" : "Editar"}
+          </button>
+          <button className="btn btn-small" onClick={() => void remove()} disabled={removing}>
+            {removing ? "Removendo…" : "Remover"}
+          </button>
         </div>
       </div>
-      {mine && <p className="muted" style={{ margin: 0 }}>Você configura o seu próprio cadastro na área “{barber.name}”, mais abaixo.</p>}
+      {err && <p className="error" style={{ margin: 0 }}>{err}</p>}
+      {mine && !expanded && <p className="muted" style={{ margin: 0 }}>Você configura o restante do seu cadastro na área “{barber.name}”, mais abaixo.</p>}
+      {expanded && <RenameForm barber={barber} onChange={onChange} />}
       {expanded && !mine && <ManagedEditor barber={barber} onChange={onChange} />}
     </div>
+  );
+}
+
+function RenameForm({ barber, onChange }: { barber: Barber; onChange: () => void }) {
+  const [name, setName] = useState(barber.name);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  async function save(e: FormEvent) {
+    e.preventDefault();
+    const clean = name.trim();
+    if (clean.length < 2 || clean.length > 80) return setMsg({ ok: false, text: "O nome deve ter de 2 a 80 letras." });
+    setBusy(true);
+    setMsg(null);
+    const { error } = await supabaseBrowser().from("barbers").update({ name: clean }).eq("id", barber.id);
+    setBusy(false);
+    if (error) return setMsg({ ok: false, text: "Não foi possível salvar o nome." });
+    setMsg({ ok: true, text: "Nome salvo." });
+    onChange();
+  }
+
+  return (
+    <form className="stack" onSubmit={save} style={{ gap: 6 }}>
+      <label htmlFor={`rn-${barber.id}`}>Nome do barbeiro</label>
+      <div className="row">
+        <input id={`rn-${barber.id}`} style={{ flex: 1, minWidth: 180 }} maxLength={80} value={name} onChange={(e) => setName(e.target.value)} />
+        <button className="btn btn-small btn-primary" type="submit" disabled={busy}>
+          {busy ? "Salvando…" : "Salvar nome"}
+        </button>
+      </div>
+      <p className="muted" style={{ margin: 0 }}>O endereço do link do barbeiro continua o mesmo, para os links já enviados não pararem de funcionar.</p>
+      {msg && <p className={msg.ok ? "ok" : "error"} style={{ margin: 0 }}>{msg.text}</p>}
+    </form>
   );
 }
 

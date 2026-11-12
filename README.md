@@ -211,3 +211,11 @@ Fundo em degradê (sem quadriculado), menu flutuando sobre a imagem inicial, bar
 3. Rode `supabase/migracao-push.sql`.
 4. No painel (site publicado, app instalado no iPhone), toque em "Ativar avisos neste celular" e depois em "Enviar teste".
 Os avisos saem junto com o Telegram quando um agendamento é confirmado ou cancelado pelo cliente. O barbeiro e o dono da barbearia recebem.
+
+## Novidades: equipe, mapa e atendimento
+
+Rode **uma vez** `supabase/migracao-novidades.sql` no SQL Editor do Supabase.
+
+- **Equipe:** o dono pode editar o nome do barbeiro e remover. Com agendamentos abertos, a remoção é bloqueada; com histórico, o barbeiro é arquivado (o histórico é mantido).
+- **Endereço e mapa:** ao digitar o CEP, o endereço é preenchido (ViaCEP) e um mapa pequeno aparece (OpenStreetMap, sem chave). O mesmo mapa aparece na página pública da barbearia.
+- **Atendimento:** no painel, "Iniciar atendimento" e "Finalizar". Se finalizar mais de 5 minutos antes do fim previsto, o próximo cliente do mesmo barbeiro recebe um aviso no celular (se ativou "Receber avisos deste horário" na tela do agendamento, sem cadastro). Se não ativou, o painel mostra um botão de WhatsApp com a mensagem pronta.

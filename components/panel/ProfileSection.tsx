@@ -4,6 +4,7 @@ import { useState, type ChangeEvent, type FormEvent } from "react";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
 import { removePhoto, uploadPhoto } from "@/lib/photos";
 import type { Shop } from "@/lib/panelUtils";
+import AddressField, { type GeoValue } from "./AddressField";
 
 const MAX_GALLERY = 3;
 
@@ -25,6 +26,12 @@ export default function ProfileSection({ shop, onChange }: { shop: Shop; onChang
     instagram: shop.instagram ?? "",
     hours_text: shop.hours_text ?? "",
     policies_text: shop.policies_text ?? "",
+  });
+  const [geo, setGeo] = useState<GeoValue>({
+    address: shop.address ?? "",
+    cep: shop.cep ?? null,
+    lat: shop.lat ?? null,
+    lng: shop.lng ?? null,
   });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -54,7 +61,10 @@ export default function ProfileSection({ shop, onChange }: { shop: Shop; onChang
         name: shopName,
         tagline: f.tagline.trim() || null,
         about: f.about.trim() || null,
-        address: f.address.trim() || null,
+        address: geo.address.trim() || null,
+        cep: geo.cep,
+        lat: geo.lat,
+        lng: geo.lng,
         phone: phone || null,
         instagram: instagram || null,
         hours_text: f.hours_text.trim() || null,
@@ -65,7 +75,7 @@ export default function ProfileSection({ shop, onChange }: { shop: Shop; onChang
 
     if (error) {
       const hint = /column|schema cache/i.test(error.message)
-        ? " Confira se você rodou o arquivo migracao-vitrine.sql no Supabase."
+        ? " Confira se você rodou o arquivo migracao-vitrine.sql e o migracao-novidades.sql no Supabase."
         : "";
       return setMsg({ ok: false, text: `Não foi possível salvar.${hint}` });
     }
@@ -272,15 +282,9 @@ export default function ProfileSection({ shop, onChange }: { shop: Shop; onChang
             onChange={(e) => setF({ ...f, about: e.target.value })}
           />
         </div>
-        <div>
-          <label htmlFor="p-address">Endereço</label>
-          <input
-            id="p-address"
-            maxLength={160}
-            placeholder="Rua, número, bairro, cidade"
-            value={f.address}
-            onChange={(e) => setF({ ...f, address: e.target.value })}
-          />
+        <div className="stack">
+          <strong>Endereço</strong>
+          <AddressField value={geo} onChange={setGeo} />
         </div>
         <div>
           <label htmlFor="p-phone">WhatsApp da barbearia, com DDD</label>

@@ -27,6 +27,7 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(fetch(req).catch(() => caches.match(OFFLINE_URL)));
     return;
   }
+
   if (url.pathname.startsWith("/icons/")) {
     event.respondWith(
       fetch(req)
@@ -41,6 +42,7 @@ self.addEventListener("fetch", (event) => {
     );
     return;
   }
+
   if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith(
       caches.match(req).then(

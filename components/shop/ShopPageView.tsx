@@ -1,5 +1,6 @@
 import type { PublicBarber, PublicShop } from "@/lib/shopData";
-import { formatPhone, instagramLink, mapsLink, whatsappLink } from "@/lib/links";
+import { formatPhone, instagramLink, mapsCoordsLink, mapsLink, wazeLink, whatsappLink } from "@/lib/links";
+import MiniMap from "@/components/MiniMap";
 import { MAX_DAYS_AHEAD } from "@/lib/config";
 import { formatBRL, todayLocal } from "@/lib/time";
 import BookingFlow from "@/components/BookingFlow";
@@ -277,6 +278,19 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
                 </li>
               )}
             </ul>
+            {shop.lat !== null && shop.lng !== null && (
+              <div className="vm-map">
+                <MiniMap lat={shop.lat} lng={shop.lng} height={220} />
+                <div className="vm-map-links">
+                  <a href={mapsCoordsLink(shop.lat, shop.lng)} target="_blank" rel="noreferrer">
+                    Abrir no Google Maps
+                  </a>
+                  <a href={wazeLink(shop.lat, shop.lng)} target="_blank" rel="noreferrer">
+                    Abrir no Waze
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       )}

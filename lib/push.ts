@@ -63,3 +63,34 @@ export async function sendPushForBarber(admin: SupabaseClient, barberId: string,
     return 0;
   }
 }
+
+export async function sendPushToBooking(admin: SupabaseClient, bookingId: string, payload: PushPayload): Promise<number> {
+  if (!setup()) return 0;
+  try {
+    const { data: subs } = await admin
+      .from("booking_push_subscriptions")
+      .select("id,endpoint,p256dh,auth")
+      .eq("booking_id", bookingId);
+    let sent = 0;
+    const body = JSON.stringify({ url: `/pagamento/${bookingId}`, ...payload });
+    await Promise.all(
+      (subs ?? []).map(async (s) => {
+        try {
+          await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, body, {
+            TTL: 1800,
+            urgency: "high",
+          });
+          sent += 1;
+        } catch (e) {
+          const code = (e as { statusCode?: number }).statusCode;
+          if (code === 404 || code === 410) await admin.from("booking_push_subscriptions").delete().eq("id", s.id);
+          else console.error("push cliente:", code ?? "erro");
+        }
+      }),
+    );
+    return sent;
+  } catch (e) {
+    console.error("push cliente geral:", e);
+    return 0;
+  }
+}

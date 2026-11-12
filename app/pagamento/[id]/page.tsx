@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useParams } from "next/navigation";
 import { formatBRL } from "@/lib/time";
+import BookingPush from "@/components/BookingPush";
 
 type Info = {
   status: "pending" | "confirmed" | "expired" | "conflict" | "cancelled";
@@ -127,6 +128,7 @@ export default function PagamentoPage() {
           <p className="muted">Para cancelar ou remarcar agora, fale com a barbearia.</p>
         )}
         {cancelMsg && <p className="error">{cancelMsg}</p>}
+        <BookingPush bookingId={id} />
       </>
     );
   } else if (info.status === "conflict") {

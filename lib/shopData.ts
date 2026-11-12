@@ -16,6 +16,8 @@ export type PublicShop = {
   tagline: string | null;
   about: string | null;
   address: string | null;
+  lat: number | null;
+  lng: number | null;
   phone: string | null;
   instagram: string | null;
   hours_text: string | null;
@@ -40,7 +42,7 @@ export async function loadPublicShop(shopSlug: string, barberSlug?: string): Pro
 
   const { data: shop } = await admin
     .from("shops")
-    .select("id,name,status,paid_until,tagline,about,address,phone,instagram,hours_text,policies_text,cover_url,logo_url,gallery")
+    .select("id,name,status,paid_until,tagline,about,address,lat,lng,phone,instagram,hours_text,policies_text,cover_url,logo_url,gallery")
     .eq("slug", shopSlug)
     .eq("active", true)
     .maybeSingle();
@@ -76,6 +78,8 @@ export async function loadPublicShop(shopSlug: string, barberSlug?: string): Pro
     tagline: shop.tagline ?? null,
     about: shop.about ?? null,
     address: shop.address ?? null,
+    lat: typeof shop.lat === "number" ? shop.lat : null,
+    lng: typeof shop.lng === "number" ? shop.lng : null,
     phone: shop.phone ?? null,
     instagram: shop.instagram ?? null,
     hours_text: shop.hours_text ?? null,

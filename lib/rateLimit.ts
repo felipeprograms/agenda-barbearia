@@ -6,6 +6,8 @@ export const LIMITS = {
   book: { name: "book", max: 8, windowSec: 600 },
   slots: { name: "slots", max: 60, windowSec: 60 },
   bookingStatus: { name: "bkst", max: 120, windowSec: 60 },
+  geo: { name: "geo", max: 40, windowSec: 600 },
+  bookingPush: { name: "bkpush", max: 10, windowSec: 600 },
   bookingCancel: { name: "bkcx", max: 10, windowSec: 600 },
   connect: { name: "conn", max: 10, windowSec: 600 },
   mpCallback: { name: "mpcb", max: 20, windowSec: 600 },

@@ -408,12 +408,43 @@ type BookingRow = {
   status: string;
   amount_cents: number;
   price_cents: number;
+  started_at?: string | null;
+  finished_at?: string | null;
 };
+
+type NextClient = { name: string; when: string; pushSent: number; whatsappUrl: string | null };
 
 function Bookings({ barber }: { barber: Barber }) {
   const [items, setItems] = useState<BookingRow[]>([]);
   const [cancelling, setCancelling] = useState("");
   const [cancelMsg, setCancelMsg] = useState("");
+  const [working, setWorking] = useState("");
+  const [flash, setFlash] = useState("");
+  const [nextClient, setNextClient] = useState<NextClient | null>(null);
+
+  async function atendimento(b: BookingRow, action: "start" | "finish") {
+    if (action === "finish" && !window.confirm(`Finalizar o atendimento de ${b.customer_name}?`)) return;
+    setWorking(b.id);
+    setFlash("");
+    setNextClient(null);
+    try {
+      const r = await postAuthed("/api/painel/atendimento", { bookingId: b.id, action });
+      if (!r.ok) {
+        setFlash(r.error ?? "Não foi possível salvar.");
+        return;
+      }
+      if (action === "start") setFlash("Atendimento iniciado.");
+      else if (!r.data?.early) setFlash("Atendimento finalizado.");
+      else if (!r.data?.next) setFlash("Atendimento finalizado antes do previsto. Não há cliente logo em seguida.");
+      else {
+        setFlash("Atendimento finalizado antes do previsto.");
+        setNextClient(r.data.next as NextClient);
+      }
+      await load();
+    } finally {
+      setWorking("");
+    }
+  }
 
   async function cancel(b: BookingRow) {
     if (!window.confirm(`Cancelar o horário de ${b.customer_name} e devolver ${formatBRL(b.amount_cents)} pelo Mercado Pago?`)) return;
@@ -430,13 +461,24 @@ function Bookings({ barber }: { barber: Barber }) {
 
   const load = useCallback(async () => {
     const since = new Date(Date.now() - 2 * 3600_000).toISOString();
-    const { data } = await supabaseBrowser()
+    const { data, error } = await supabaseBrowser()
       .from("bookings")
-      .select("id,service_name,customer_name,customer_phone,starts_at,status,amount_cents,price_cents")
+      .select("id,service_name,customer_name,customer_phone,starts_at,status,amount_cents,price_cents,started_at,finished_at")
       .eq("barber_id", barber.id)
       .in("status", ["confirmed", "conflict"])
       .gte("starts_at", since)
       .order("starts_at");
+    if (error) {
+      const old = await supabaseBrowser()
+        .from("bookings")
+        .select("id,service_name,customer_name,customer_phone,starts_at,status,amount_cents,price_cents")
+        .eq("barber_id", barber.id)
+        .in("status", ["confirmed", "conflict"])
+        .gte("starts_at", since)
+        .order("starts_at");
+      setItems((old.data ?? []) as BookingRow[]);
+      return;
+    }
     setItems((data ?? []) as BookingRow[]);
   }, [barber.id]);
 
@@ -453,6 +495,24 @@ function Bookings({ barber }: { barber: Barber }) {
         </button>
       </div>
       {cancelMsg && <p className="muted">{cancelMsg}</p>}
+      {flash && <p className="muted">{flash}</p>}
+      {nextClient && (
+        <div className="item">
+          <div>
+            <strong>Próximo cliente: {nextClient.name}</strong> (às {nextClient.when})
+            <div className="muted">
+              {nextClient.pushSent > 0
+                ? "Aviso enviado ao celular dele."
+                : "Ele não ativou os avisos no celular. Chame pelo WhatsApp:"}
+            </div>
+          </div>
+          {nextClient.whatsappUrl && (
+            <a className="btn btn-small" href={nextClient.whatsappUrl} target="_blank" rel="noreferrer">
+              Avisar pelo WhatsApp
+            </a>
+          )}
+        </div>
+      )}
       {items.length === 0 && <p className="muted">Nenhum agendamento por enquanto.</p>}
       {items.map((b) => {
         const wa = b.customer_phone.length <= 11 ? `55${b.customer_phone}` : b.customer_phone;
@@ -472,9 +532,23 @@ function Bookings({ barber }: { barber: Barber }) {
             </div>
             <div className="row">
               {b.status === "conflict" && <span className="badge warn">devolver Pix</span>}
+              {b.status === "confirmed" && b.finished_at && <span className="badge">concluído</span>}
+              {b.status === "confirmed" && b.started_at && !b.finished_at && <span className="badge">em atendimento</span>}
+              {b.status === "confirmed" && !b.started_at && !b.finished_at && (
+                <button className="btn btn-small" disabled={working === b.id} onClick={() => void atendimento(b, "start")}>
+                  Iniciar atendimento
+                </button>
+              )}
+              {b.status === "confirmed" && !b.finished_at && b.started_at && (
+                <button className="btn btn-small" disabled={working === b.id} onClick={() => void atendimento(b, "finish")}>
+                  Finalizar
+                </button>
+              )}
+              {!b.finished_at && (
               <button className="btn btn-small" disabled={cancelling === b.id} onClick={() => void cancel(b)}>
                 {cancelling === b.id ? "Cancelando…" : "Cancelar e devolver sinal"}
               </button>
+              )}
             </div>
           </div>
         );

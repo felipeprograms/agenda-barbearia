@@ -6,6 +6,7 @@ import { uploadPhoto, removePhoto } from "@/lib/photos";
 import { copyText, type Barber, type Shop, type ShopBasic } from "@/lib/panelUtils";
 import Wizard, { type WizardStep } from "./Wizard";
 import { Hours, Integrations, PhotoCard, Services } from "./BarberSection";
+import AddressField, { type GeoValue } from "./AddressField";
 
 function seen(key: string): boolean {
   try {
@@ -69,6 +70,7 @@ function ShopWizard({ shop, onChange, onClose }: { shop: Shop; onChange: () => v
     address: shop.address ?? "",
     hours_text: shop.hours_text ?? "",
   });
+  const [geo, setGeo] = useState<GeoValue>({ address: shop.address ?? "", cep: shop.cep ?? null, lat: shop.lat ?? null, lng: shop.lng ?? null });
   const [uploading, setUploading] = useState("");
   const [copied, setCopied] = useState(false);
   const set = (k: keyof typeof f) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -126,7 +128,7 @@ function ShopWizard({ shop, onChange, onClose }: { shop: Shop; onChange: () => v
     {
       id: "contato",
       title: "Contato e endereço",
-      info: "O WhatsApp e o Instagram viram ícones no menu e no fim da página. O endereço abre o mapa para o cliente.",
+      info: "O WhatsApp e o Instagram viram ícones no menu e no fim da página. Digite o CEP: o endereço e o mapa aparecem sozinhos. O cliente vê o mapa na sua página.",
       content: (
         <>
           <div>
@@ -137,10 +139,7 @@ function ShopWizard({ shop, onChange, onClose }: { shop: Shop; onChange: () => v
             <label htmlFor="wz-ig">Instagram (só o usuário)</label>
             <input id="wz-ig" placeholder="@minhabarbearia" value={f.instagram} onChange={set("instagram")} />
           </div>
-          <div>
-            <label htmlFor="wz-addr">Endereço</label>
-            <input id="wz-addr" placeholder="Rua, número, bairro, cidade" value={f.address} onChange={set("address")} />
-          </div>
+          <AddressField value={geo} onChange={setGeo} />
         </>
       ),
       onConfirm: async () => {
@@ -148,7 +147,7 @@ function ShopWizard({ shop, onChange, onClose }: { shop: Shop; onChange: () => v
         if (phone && (phone.length < 10 || phone.length > 13)) return "Informe o WhatsApp com DDD, por exemplo 71 99999-9999.";
         const instagram = cleanInstagram(f.instagram);
         if (instagram && !/^[A-Za-z0-9._]{1,30}$/.test(instagram)) return "O Instagram deve ser só o usuário, como @minhabarbearia.";
-        return save({ phone: phone || null, instagram: instagram || null, address: f.address.trim() || null });
+        return save({ phone: phone || null, instagram: instagram || null, address: geo.address.trim() || null, cep: geo.cep, lat: geo.lat, lng: geo.lng });
       },
     },
     {
