@@ -6,7 +6,7 @@ import { formatBRL, todayLocal } from "@/lib/time";
 import BookingFlow from "@/components/BookingFlow";
 import { Icon } from "./Icons";
 import InstallButton from "@/components/InstallButton";
-import PhotoStack, { type StackItem } from "./PhotoStack";
+import PhotoWheel from "./PhotoWheel";
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -40,8 +40,8 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
   const showServices = hasBarbers && services.length > 0;
   const showBarbers = hasBarbers && !focusBarber;
 
-  const aboutPhotos: StackItem[] = shop.gallery.slice(0, 3).map((src) => ({ src }));
-  const hasAbout = Boolean(shop.about) || aboutPhotos.length > 0;
+  const galleryPhotos = shop.gallery.slice(0, 8);
+  const hasGallery = galleryPhotos.length > 0;
   const showTeam = showBarbers || showServices;
 
   const tagline = shop.tagline ?? "Escolha o barbeiro, o serviço e o horário. O sinal pelo Pix ou cartão garante a sua vaga.";
@@ -65,7 +65,6 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
             </a>
             {showBarbers && <a href="#barbeiros">Barbeiros</a>}
             {showServices && <a href="#servicos">Serviços</a>}
-            {hasAbout && <a href="#sobre">Sobre</a>}
             {hasVisit && <a href="#visita">Contato</a>}
           </div>
           <div className="nav-social">
@@ -214,18 +213,10 @@ export default function ShopPageView({ shop, focusBarber = false }: { shop: Publ
         </section>
       )}
 
-      {hasAbout && (
-        <section className="section about-min" id="sobre">
-          <div className={`wrap about-grid${aboutPhotos.length > 0 ? "" : " about-solo"}`}>
-            <div className="about-copy">
-              <h2 className="section-title">Sobre</h2>
-              {shop.about && <p className="about-text pre">{shop.about}</p>}
-            </div>
-            {aboutPhotos.length > 0 && (
-              <div className="about-photos">
-                <PhotoStack items={aboutPhotos} />
-              </div>
-            )}
+      {hasGallery && (
+        <section className="section gallery-min" id="galeria" aria-label="Cortes realizados">
+          <div className="wrap">
+            <PhotoWheel photos={galleryPhotos} />
           </div>
         </section>
       )}

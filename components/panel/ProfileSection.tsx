@@ -6,7 +6,7 @@ import { removePhoto, uploadPhoto } from "@/lib/photos";
 import type { Shop } from "@/lib/panelUtils";
 import AddressField, { type GeoValue } from "./AddressField";
 
-const MAX_GALLERY = 3;
+const MAX_GALLERY = 8;
 
 function cleanInstagram(v: string): string {
   return v
