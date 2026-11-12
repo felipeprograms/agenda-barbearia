@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: { default: `${BRAND} | Agenda online para barbearias`, template: `%s | ${BRAND}` },
   description: "Agende seu horário na barbearia e garanta a vaga com Pix ou cartão.",
   applicationName: BRAND,
-  icons: { icon: "/icons/icon-192.png", apple: "/icons/apple-touch-icon.png" },
+  icons: { icon: "/icons/icon-192.png?v=3", apple: "/icons/apple-touch-icon.png?v=3" },
   appleWebApp: { capable: true, title: BRAND, statusBarStyle: "black-translucent" },
 };
 

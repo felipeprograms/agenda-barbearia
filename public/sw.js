@@ -1,7 +1,7 @@
-const VERSION = "v2";
+const VERSION = "v3";
 const CACHE = `static-${VERSION}`;
 const OFFLINE_URL = "/offline.html";
-const PRECACHE = [OFFLINE_URL, "/icons/icon-192.png", "/icons/icon-512.png", "/icons/badge.png"];
+const PRECACHE = [OFFLINE_URL];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
@@ -27,8 +27,21 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(fetch(req).catch(() => caches.match(OFFLINE_URL)));
     return;
   }
-
-  if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/icons/")) {
+  if (url.pathname.startsWith("/icons/")) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() => caches.match(req)),
+    );
+    return;
+  }
+  if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith(
       caches.match(req).then(
         (hit) =>
@@ -56,8 +69,8 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(title, {
       body: typeof data.body === "string" ? data.body.slice(0, 200) : "",
-      icon: "/icons/icon-192.png",
-      badge: "/icons/badge.png",
+      icon: "/icons/icon-192.png?v=3",
+      badge: "/icons/badge.png?v=3",
       tag: typeof data.tag === "string" ? data.tag : undefined,
       data: { url: typeof data.url === "string" && data.url.startsWith("/") ? data.url : "/painel" },
     }),
